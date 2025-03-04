@@ -1,0 +1,169 @@
+<div class="max-w-4xl mx-auto py-8 px-4">
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+    <div class="p-6">
+      <div class="flex justify-between items-start">
+        <h1 class="text-3xl font-bold"><%= @recipe.title %></h1>
+        <div class="flex flex-col items-end">
+          <div class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full flex items-center mb-2">
+            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zm-1-5h2v-4H9v4z"/>
+            </svg>
+            <%= "#{@recipe.seasonal_score}% de saison" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <h2 class="text-lg font-semibold mb-2">Ingrédients de saison utilisés</h2>
+        <div class="flex flex-wrap gap-2">
+          <% @recipe.seasonal_ingredients_used.each do |ingredient| %>
+            <span class="bg-green-50 text-green-700 text-sm font-medium px-3 py-1 rounded-full">
+              <%= ingredient %>
+            </span>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-4">
+          <%= rating_stars(@recipe.average_rating) %>
+          <span class="text-sm text-gray-500">
+            (<%= pluralize(@recipe.total_reviews, 'avis') %>)
+          </span>
+        </div>
+
+        <% if @recipe.user == current_user %>
+          <div class="flex gap-4">
+            <%= link_to edit_recipe_path(@recipe), class: " items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors duration-150" do %>
+              Modifier
+            <% end %>
+
+            <%= button_to recipe_path(@recipe), 
+                method: :delete,
+                class: "inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors duration-150",
+                form_class: "inline-block",
+                data: { turbo_confirm: "Êtes-vous sûr de vouloir supprimer cette recette ?" } do %>
+              Supprimer
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+        <div class="px-4 py-5 sm:px-6">
+          <h2 class="text-xl font-semibold mb-4">Description</h2>
+          <p class="text-gray-600"><%= @recipe.description %></p>
+        </div>
+
+        <div class="border-t border-gray-200">
+          <div class="px-4 py-5 sm:px-6">
+            <h2 class="text-xl font-semibold mb-4">Ingrédients</h2>
+            <div class="ingredients text-gray-600">
+              <%= simple_format @recipe.ingredients %>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-gray-200">
+          <div class="px-4 py-5 sm:px-6">
+            <h2 class="text-xl font-semibold mb-4">Instructions</h2>
+            <div class="instructions text-gray-600">
+              <%= simple_format @recipe.instructions %>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-gray-200">
+          <div class="px-4 py-5 sm:px-6 grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm font-medium text-gray-500">Portions</p>
+              <p class="mt-1 text-sm text-gray-900"><%= @recipe.servings %></p>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-500">Difficulté</p>
+              <p class="mt-1 text-sm text-gray-900"><%= @recipe.difficulty %></p>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-500">Temps de préparation</p>
+              <p class="mt-1 text-sm text-gray-900"><%= @recipe.preparation_time %> minutes</p>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-500">Temps de cuisson</p>
+              <p class="mt-1 text-sm text-gray-900"><%= @recipe.cooking_time %> minutes</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <h2 class="text-2xl font-bold mb-6">Commentaires</h2>
+        
+        <% if user_signed_in? %>
+          <% if @recipe.reviews.exists?(user: current_user) %>
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm text-yellow-700">
+                    Vous avez déjà commenté cette recette.
+                  </p>
+                </div>
+              </div>
+            </div>
+          <% else %>
+            <div class="bg-white shadow sm:rounded-lg p-6 mb-8">
+              <h3 class="text-lg font-medium mb-4">Ajouter un commentaire</h3>
+              <%= render 'reviews/form', recipe: @recipe, review: @review %>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8 text-center">
+            <p class="text-gray-600">
+              <%= link_to "Connectez-vous", new_user_session_path, class: "text-indigo-600 hover:text-indigo-800" %>
+              pour laisser un commentaire
+            </p>
+          </div>
+        <% end %>
+
+        <div class="space-y-6">
+          <% @reviews.each do |review| %>
+            <div class="bg-white shadow sm:rounded-lg p-6">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <p class="text-sm font-medium text-gray-900"><%= review.user.email %></p>
+                  <div class="flex items-center gap-4">
+                    <%= rating_stars(review.rating) %>
+                    <span class="text-sm text-gray-500">
+                        le <%= l(review.created_at, format: :long) %>
+                    </span>
+                  </div>
+                </div>
+                <% if review.user == current_user %>
+                  <div class="flex gap-4">
+                    <%= link_to "Modifier",
+                        edit_recipe_review_path(@recipe, review), 
+                        class: "inline-block text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2" %>
+
+                    <%= button_to "Supprimer",
+                        recipe_review_path(@recipe, review), 
+                        method: :delete,
+                        class: "text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2",
+                        form_class: "inline-block",
+                        data: { turbo_confirm: "Êtes-vous sûr de vouloir supprimer cet avis ?" } %>
+                  </div>
+                <% end %>
+              </div>
+              <p class="text-gray-600"><%= review.comment %></p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

@@ -1,0 +1,96 @@
+<div class="max-w-4xl mx-auto py-8 px-4">
+  <h1 class="text-3xl font-bold mb-8">Créer un nouveau plan</h1>
+
+  <%= form_with(model: @plan, local: true, class: "space-y-8") do |f| %>
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-6">Période</h2>
+      
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <%= f.label :start_date, "Date de début", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.date_field :start_date, 
+              value: Date.current.beginning_of_week,
+              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+        </div>
+
+        <div>
+          <%= f.label :end_date, "Date de fin", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.date_field :end_date,
+              value: Date.current.end_of_week,
+              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-6">Repas à générer</h2>
+      
+      <div class="space-y-6">
+        <div class="border-b pb-6">
+          <h3 class="text-lg font-medium mb-4">En semaine (Lundi - Vendredi)</h3>
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <%= f.check_box :weekday_lunches, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
+              <%= f.label :weekday_lunches, "Déjeuners", class: "ml-2 block text-sm text-gray-900" %>
+            </div>
+            <div class="flex items-center">
+              <%= f.check_box :weekday_dinners, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
+              <%= f.label :weekday_dinners, "Dîners", class: "ml-2 block text-sm text-gray-900" %>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-medium mb-4">Weekend (Samedi - Dimanche)</h3>
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <%= f.check_box :weekend_lunches, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
+              <%= f.label :weekend_lunches, "Déjeuners", class: "ml-2 block text-sm text-gray-900" %>
+            </div>
+            <div class="flex items-center">
+              <%= f.check_box :weekend_dinners, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
+              <%= f.label :weekend_dinners, "Dîners", class: "ml-2 block text-sm text-gray-900" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white shadow sm:rounded-lg p-6">
+      <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+        <div>
+          <%= f.label :constraints_servings, "Nombre de personnes", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.number_field :constraints_servings, min: 1, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+        </div>
+
+        <div>
+          <%= f.label :constraints_max_preparation_time, "Temps de préparation maximum (minutes)", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.number_field :constraints_max_preparation_time, min: 0, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+        </div>
+
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-medium text-gray-700">Restrictions alimentaires</label>
+          <div class="mt-2 space-y-2">
+            <% ["Végétarien", "Végétalien", "Sans gluten", "Sans lactose"].each do |restriction| %>
+              <div class="flex items-center">
+                <%= f.check_box "constraints_dietary_restrictions_#{restriction.parameterize}", class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
+                <label class="ml-2 text-sm text-gray-700"><%= restriction %></label>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="sm:col-span-2">
+          <%= f.label :constraints_excluded_ingredients, "Ingrédients à exclure", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_field :constraints_excluded_ingredients, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500", 
+                         placeholder: "Séparés par des virgules" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 flex justify-end space-x-3">
+      <%= link_to "Annuler", plans_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+      <%= f.submit "Créer et générer les recettes", class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
+    </div>
+  <% end %>
+</div> 

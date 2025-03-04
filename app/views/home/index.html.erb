@@ -1,0 +1,65 @@
+<div class="bg-white">
+  <div class="relative isolate px-6 pt-14 lg:px-8">
+    <div class="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
+      <div class="text-center">
+        <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+          On Mange Quoi Ce Soir ?
+        </h1>
+        <p class="mt-6 text-lg leading-8 text-gray-600">
+          Générez des plans de repas personnalisés en fonction de vos préférences et contraintes alimentaires.
+        </p>
+        <div class="mt-10 flex items-center justify-center gap-x-6">
+          <% if user_signed_in? %>
+            <%= link_to "Générer mon plan", new_plan_path, 
+                class: "rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" %>
+          <% else %>
+            <%= link_to "Commencer", new_user_registration_path, 
+                class: "rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" %>
+            <%= link_to "Se connecter", new_user_session_path, 
+                class: "text-sm font-semibold leading-6 text-gray-900" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-16">
+    <h2 class="text-2xl font-bold tracking-tight text-gray-900 mb-8">
+      Découvrez nos dernières recettes
+    </h2>
+
+    <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+      <% @recipes.each do |recipe| %>
+        <%= link_to recipe_path(recipe), class: "group" do %>
+          <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="p-6">
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-indigo-600">
+                <%= recipe.title %>
+              </h3>
+              
+              <div class="mt-2 flex items-center gap-2">
+                <%= rating_stars(recipe.average_rating) %>
+                <span class="text-sm text-gray-500">
+                  (<%= pluralize(recipe.total_reviews, 'avis') %>)
+                </span>
+              </div>
+
+              <p class="mt-2 text-sm text-gray-600 line-clamp-2">
+                <%= recipe.description %>
+              </p>
+
+              <div class="mt-4 flex justify-between text-sm text-gray-500">
+                <span class="bg-gray-100 px-3 py-1 rounded-full">
+                  <%= recipe.difficulty %>
+                </span>
+                <span class="bg-gray-100 px-3 py-1 rounded-full">
+                  <%= recipe.preparation_time + recipe.cooking_time %> min
+                </span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div> 

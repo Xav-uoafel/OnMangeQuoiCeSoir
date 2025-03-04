@@ -1,0 +1,30 @@
+<div class="max-w-7xl mx-auto py-8 px-4">
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold">Mes plans de repas</h1>
+    <%= link_to "Nouveau plan", new_plan_path, 
+        class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
+  </div>
+
+  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <% @plans.each do |plan| %>
+      <%= link_to plan_path(plan), class: "block" do %>
+        <div class="bg-white shadow rounded-lg p-6 hover:shadow-lg transition-shadow duration-200">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-sm text-gray-500">
+                Du <%= l plan.start_date, format: :long %><br>
+                au <%= l plan.end_date, format: :long %>
+              </p>
+              <p class="mt-2 text-sm text-gray-600">
+                <%= pluralize(plan.recipes.count, 'recette') %>
+              </p>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= plan.status == 'draft' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' %>">
+              <%= plan.status == 'draft' ? 'Brouillon' : 'Généré' %>
+            </span>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div> 

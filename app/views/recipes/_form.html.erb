@@ -1,0 +1,57 @@
+<%= form_with(model: @recipe, local: true) do |form| %>
+    <% if @recipe.errors.any? %>
+      <div id="error_explanation">
+        <h2><%= pluralize(@recipe.errors.count, "erreur") %> empêchent cette recette d'être sauvegardée :</h2>
+        <ul>
+          <% @recipe.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  
+    <div class="field">
+      <%= form.label :title, "Titre" %>
+      <%= form.text_field :title %>
+    </div>
+  
+    <div class="field">
+      <%= form.label :description, "Description" %>
+      <%= form.text_area :description %>
+    </div>
+  
+    <div class="field">
+      <%= form.label :ingredients, "Ingrédients" %>
+      <%= form.text_area :ingredients %>
+    </div>
+  
+    <div class="field">
+      <%= form.label :instructions, "Instructions" %>
+      <%= form.text_area :instructions %>
+    </div>
+  
+    <div class="field">
+      <%= form.label :servings, "Nombre de personnes" %>
+      <%= form.number_field :servings %>
+    </div>
+  
+    <div class="field">
+      <%= form.label :preparation_time, "Temps de préparation (minutes)" %>
+      <%= form.number_field :preparation_time %>
+    </div>
+  
+    <div class="field">
+      <%= form.label :cooking_time, "Temps de cuisson (minutes)" %>
+      <%= form.number_field :cooking_time %>
+    </div>
+  
+    <div class="field">
+      <%= form.label :difficulty, "Difficulté" %>
+      <%= form.text_field :difficulty %>
+    </div>
+  
+    <div class="actions">
+      <%= form.submit %>
+    </div>
+  <% end %>
+  

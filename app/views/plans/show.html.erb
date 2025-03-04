@@ -1,0 +1,82 @@
+<div class="max-w-7xl mx-auto py-8 px-4">
+  <div class="mb-8">
+    <div class="flex justify-between items-start">
+      <div>
+        <h1 class="text-3xl font-bold mb-2">Plan de repas</h1>
+        <p class="text-gray-600">
+          Du <%= l @plan.start_date, format: :long %> au <%= l @plan.end_date, format: :long %>
+        </p>
+      </div>
+      
+      <% if @plan.status == 'draft' %>
+        <div class="flex gap-4">
+          <%= button_to "Générer les recettes",
+              generate_plan_path(@plan),
+              method: :post,
+              class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
+        </div>
+      <% end %>
+
+      <div class="flex gap-4">
+        <%= button_to plan_path(@plan),
+            method: :delete,
+            class: "inline-flex items-center px-4 py-2 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50",
+            data: { turbo_confirm: "Êtes-vous sûr de vouloir supprimer ce plan de repas ?" } do %>
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          Supprimer le plan
+        <% end %>
+      </div>
+    </div>
+
+    <div class="mt-4 bg-gray-50 rounded-lg p-4">
+      <h2 class="text-lg font-semibold mb-2">Contraintes</h2>
+      <ul class="space-y-2">
+        <li>Nombre de personnes : <%= @plan.constraints["servings"] %></li>
+        <li>Temps de préparation maximum : <%= @plan.constraints["max_preparation_time"] %> minutes</li>
+        <% if @plan.constraints["dietary_restrictions"].present? %>
+          <li>Restrictions alimentaires : <%= @plan.constraints["dietary_restrictions"].join(", ") %></li>
+        <% end %>
+        <% if @plan.constraints["excluded_ingredients"].present? %>
+          <li>Ingrédients exclus : <%= @plan.constraints["excluded_ingredients"] %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid gap-6 mt-8">
+    <% (@plan.start_date..@plan.end_date).each do |date| %>
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="bg-gray-50 px-4 py-2">
+          <h3 class="text-lg font-semibold"><%= l date, format: :long %></h3>
+        </div>
+        
+        <div class="divide-y divide-gray-200">
+          <% @plan.plan_recipes.where(scheduled_for: date).order(:meal_type).each do |plan_recipe| %>
+            <div class="p-4">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h4 class="font-medium text-gray-900"><%= plan_recipe.meal_type %></h4>
+                  <p class="mt-1 text-lg font-semibold"><%= plan_recipe.recipe.title %></p>
+                </div>
+                
+                <div class="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
+                  <%= "#{plan_recipe.recipe.seasonal_score}% de saison" %>
+                </div>
+              </div>
+
+              <div class="mt-2 flex flex-wrap gap-2">
+                <% plan_recipe.recipe.seasonal_ingredients_used.each do |ingredient| %>
+                  <span class="bg-green-50 text-green-700 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    <%= ingredient %>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div> 

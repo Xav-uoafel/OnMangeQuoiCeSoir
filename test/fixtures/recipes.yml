@@ -1,0 +1,30 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# This model initially had no columns defined. If you add columns to the
+# model remove the "{}" from the fixture names and add the columns immediately
+# below each fixture, per the syntax in the comments below
+#
+one:
+  title: Tarte aux pommes
+  description: Une délicieuse tarte aux pommes traditionnelle
+  ingredients: Pommes, sucre, pâte brisée, cannelle
+  instructions: 1. Préparer la pâte\n2. Couper les pommes\n3. Assembler et cuire
+  servings: 8
+  preparation_time: 30
+  cooking_time: 45
+  difficulty: Facile
+  generated_at: <%= Time.current %>
+  user: one
+# column: value
+#
+two:
+  title: Ratatouille
+  description: Un plat végétarien traditionnel du sud de la France
+  ingredients: Aubergines, courgettes, poivrons, tomates, oignons
+  instructions: 1. Couper les légumes\n2. Les faire revenir\n3. Mijoter
+  servings: 6
+  preparation_time: 45
+  cooking_time: 60
+  difficulty: Intermédiaire
+  generated_at: <%= Time.current %>
+  user: one

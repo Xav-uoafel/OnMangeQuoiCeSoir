@@ -1,0 +1,47 @@
+<div class="bg-white rounded-lg shadow p-6">
+  <div class="flex justify-between items-start">
+    <h3 class="text-xl font-semibold"><%= recipe.title %></h3>
+    <div class="flex items-center">
+      <div class="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded-full flex items-center">
+        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zm-1-5h2v-4H9v4z"/>
+        </svg>
+        <%= "#{recipe.seasonal_score}% de saison" %>
+      </div>
+    </div>
+  </div>
+
+  <p class="mt-2 text-gray-600"><%= recipe.description %></p>
+
+  <div class="mt-4 flex flex-wrap gap-2">
+    <% recipe.seasonal_ingredients_used.each do |ingredient| %>
+      <span class="bg-green-50 text-green-700 text-xs font-medium px-2.5 py-0.5 rounded-full">
+        <%= ingredient %>
+      </span>
+    <% end %>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-4">
+    <div>
+      <p class="text-sm text-gray-500">Temps de préparation</p>
+      <p class="font-medium"><%= recipe.preparation_time %> min</p>
+    </div>
+    <div>
+      <p class="text-sm text-gray-500">Temps de cuisson</p>
+      <p class="font-medium"><%= recipe.cooking_time %> min</p>
+    </div>
+    <div>
+      <p class="text-sm text-gray-500">Difficulté</p>
+      <p class="font-medium"><%= recipe.difficulty %></p>
+    </div>
+    <div>
+      <p class="text-sm text-gray-500">Pour</p>
+      <p class="font-medium"><%= recipe.servings %> personnes</p>
+    </div>
+  </div>
+
+  <div class="mt-6 flex justify-end">
+    <%= link_to "Voir la recette", recipe_path(recipe), 
+        class: "text-indigo-600 hover:text-indigo-900 font-medium" %>
+  </div>
+</div> 
