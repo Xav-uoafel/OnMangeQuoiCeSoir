@@ -67,34 +67,45 @@ class PlansController < ApplicationController
   end
 
   def plan_params
-    constraints = {
-      servings: params[:plan][:constraints_servings].presence&.to_i,
-      max_preparation_time: params[:plan][:constraints_max_preparation_time].presence&.to_i,
-      dietary_restrictions: [],
-      excluded_ingredients: params[:plan][:constraints_excluded_ingredients].to_s.split(',').map(&:strip)
-    }
-
-    ["vegetarien", "vegetalien", "sans-gluten", "sans-lactose"].each do |restriction|
-      if params[:plan]["constraints_dietary_restrictions_#{restriction}"] == "1"
-        constraints[:dietary_restrictions] << restriction
-      end
-    end
-    permitted_params = params.require(:plan).permit(
-      :start_date, 
-      :end_date,
-      :weekday_lunches,
-      :weekday_dinners,
-      :weekend_lunches,
-      :weekend_dinners,
-      :constraints_servings,
+    raw_params = params.require(:plan).permit(
+      :start_date, :end_date, 
+      :weekday_lunches, :weekday_dinners, 
+      :weekend_lunches, :weekend_dinners,
+      :constraints_servings, 
       :constraints_max_preparation_time,
-      :constraints_excluded_ingredients,
       :constraints_dietary_restrictions_vegetarien,
       :constraints_dietary_restrictions_vegetalien,
       :constraints_dietary_restrictions_sans_gluten,
-      :constraints_dietary_restrictions_sans_lactose
+      :constraints_dietary_restrictions_sans_lactose,
+      :constraints_excluded_ingredients
     )
-
-    permitted_params.merge(constraints: constraints)
+    
+    # Extraire les paramètres de base
+    base_params = raw_params.slice(
+      :start_date, :end_date, 
+      :weekday_lunches, :weekday_dinners, 
+      :weekend_lunches, :weekend_dinners
+    )
+    
+    # Construire l'objet constraints
+    dietary_restrictions = []
+    dietary_restrictions << "vegetarien" if raw_params[:constraints_dietary_restrictions_vegetarien] == "1"
+    dietary_restrictions << "vegetalien" if raw_params[:constraints_dietary_restrictions_vegetalien] == "1"
+    dietary_restrictions << "sans_gluten" if raw_params[:constraints_dietary_restrictions_sans_gluten] == "1"
+    dietary_restrictions << "sans_lactose" if raw_params[:constraints_dietary_restrictions_sans_lactose] == "1"
+    
+    excluded_ingredients = raw_params[:constraints_excluded_ingredients].to_s.split(",").map(&:strip).reject(&:blank?)
+    
+    constraints = {
+      servings: raw_params[:constraints_servings].presence&.to_i,
+      max_preparation_time: raw_params[:constraints_max_preparation_time].presence&.to_i,
+      dietary_restrictions: dietary_restrictions,
+      excluded_ingredients: excluded_ingredients
+    }
+    
+    # Ajouter les contraintes aux paramètres de base
+    base_params[:constraints] = constraints
+    
+    base_params
   end
 end 

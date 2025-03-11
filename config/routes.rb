@@ -12,7 +12,7 @@ Rails.application.routes.draw do
   
   root 'home#index'
 
-  resources :recipes, only: [:index, :show] do
+  resources :recipes do
     resources :reviews, only: [:create, :edit, :update, :destroy]
   end
 

@@ -13,11 +13,14 @@
 
   <p class="mt-2 text-gray-600"><%= recipe.description %></p>
 
-  <div class="mt-4 flex flex-wrap gap-2">
-    <% recipe.seasonal_ingredients_used.each do |ingredient| %>
-      <span class="bg-green-50 text-green-700 text-xs font-medium px-2.5 py-0.5 rounded-full">
-        <%= ingredient %>
-      </span>
+  <div class="mt-4 text-gray-600 text-sm">
+    <strong>Ingrédients de saison utilisés :</strong> 
+    <% if recipe.seasonal_ingredients_used.any? %>
+      <% recipe.seasonal_ingredients_used.each_with_index do |ingredient, index| %>
+        <%= ingredient %><% if index < recipe.seasonal_ingredients_used.size - 1 %>, <% else %>.<% end %>
+      <% end %>
+    <% else %>
+      Aucun ingrédient de saison utilisé.
     <% end %>
   </div>
 

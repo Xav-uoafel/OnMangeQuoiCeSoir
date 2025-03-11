@@ -71,12 +71,22 @@
         <div class="sm:col-span-2">
           <label class="block text-sm font-medium text-gray-700">Restrictions alimentaires</label>
           <div class="mt-2 space-y-2">
-            <% ["Végétarien", "Végétalien", "Sans gluten", "Sans lactose"].each do |restriction| %>
-              <div class="flex items-center">
-                <%= f.check_box "constraints_dietary_restrictions_#{restriction.parameterize}", class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
-                <label class="ml-2 text-sm text-gray-700"><%= restriction %></label>
-              </div>
-            <% end %>
+            <div class="flex items-center">
+              <%= f.check_box :constraints_dietary_restrictions_vegetarien, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
+              <label class="ml-2 text-sm text-gray-700">Végétarien</label>
+            </div>
+            <div class="flex items-center">
+              <%= f.check_box :constraints_dietary_restrictions_vegetalien, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
+              <label class="ml-2 text-sm text-gray-700">Végétalien</label>
+            </div>
+            <div class="flex items-center">
+              <%= f.check_box :constraints_dietary_restrictions_sans_gluten, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
+              <label class="ml-2 text-sm text-gray-700">Sans gluten</label>
+            </div>
+            <div class="flex items-center">
+              <%= f.check_box :constraints_dietary_restrictions_sans_lactose, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
+              <label class="ml-2 text-sm text-gray-700">Sans lactose</label>
+            </div>
           </div>
         </div>
 

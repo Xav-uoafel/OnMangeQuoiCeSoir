@@ -54,26 +54,7 @@
         
         <div class="divide-y divide-gray-200">
           <% @plan.plan_recipes.where(scheduled_for: date).order(:meal_type).each do |plan_recipe| %>
-            <div class="p-4">
-              <div class="flex justify-between items-start">
-                <div>
-                  <h4 class="font-medium text-gray-900"><%= plan_recipe.meal_type %></h4>
-                  <p class="mt-1 text-lg font-semibold"><%= plan_recipe.recipe.title %></p>
-                </div>
-                
-                <div class="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
-                  <%= "#{plan_recipe.recipe.seasonal_score}% de saison" %>
-                </div>
-              </div>
-
-              <div class="mt-2 flex flex-wrap gap-2">
-                <% plan_recipe.recipe.seasonal_ingredients_used.each do |ingredient| %>
-                  <span class="bg-green-50 text-green-700 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                    <%= ingredient %>
-                  </span>
-                <% end %>
-              </div>
-            </div>
+            <%= render 'recipe', plan_recipe: plan_recipe %>
           <% end %>
         </div>
       </div>

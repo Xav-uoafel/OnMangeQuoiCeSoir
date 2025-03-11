@@ -1,0 +1,55 @@
+<div class="p-4 border-b border-gray-200 last:border-b-0">
+  <div class="flex justify-between items-start mb-3">
+    <div>
+      <h4 class="font-medium text-gray-900"><%= plan_recipe.meal_type %></h4>
+      <p class="mt-1 text-lg font-semibold"><%= plan_recipe.recipe.title %></p>
+    </div>
+    
+    <div class="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
+      <%= "#{plan_recipe.recipe.seasonal_score}% de saison" %>
+    </div>
+  </div>
+
+  <div class="mt-2">
+    <p class="text-gray-600 mb-2"><%= plan_recipe.recipe.description %></p>
+    
+    <div class="mt-3">
+      <h5 class="text-sm font-medium text-gray-700 mb-1">Ingrédients :</h5>
+      <div class="text-sm text-gray-600">
+        <%= simple_format(plan_recipe.recipe.ingredients) %>
+      </div>
+    </div>
+    
+    <div class="mt-3">
+      <h5 class="text-sm font-medium text-gray-700 mb-1">Ingrédients de saison utilisés :</h5>
+      <div class="text-sm text-gray-600">
+        <% if plan_recipe.recipe.seasonal_ingredients_used.any? %>
+          <% plan_recipe.recipe.seasonal_ingredients_used.each_with_index do |ingredient, index| %>
+            <%= ingredient %><% if index < plan_recipe.recipe.seasonal_ingredients_used.size - 1 %>, <% else %>.<% end %>
+          <% end %>
+        <% else %>
+          Aucun ingrédient de saison utilisé.
+        <% end %>
+      </div>
+    </div>
+    
+    <div class="mt-4 grid grid-cols-3 gap-2 text-sm">
+      <div>
+        <span class="text-gray-500">Préparation :</span>
+        <span class="font-medium"><%= plan_recipe.recipe.preparation_time %> min</span>
+      </div>
+      <div>
+        <span class="text-gray-500">Cuisson :</span>
+        <span class="font-medium"><%= plan_recipe.recipe.cooking_time %> min</span>
+      </div>
+      <div>
+        <span class="text-gray-500">Difficulté :</span>
+        <span class="font-medium"><%= plan_recipe.recipe.difficulty %></span>
+      </div>
+    </div>
+    
+    <div class="mt-3">
+      <%= link_to "Voir la recette complète", recipe_path(plan_recipe.recipe), class: "text-indigo-600 hover:text-indigo-800 text-sm font-medium" %>
+    </div>
+  </div>
+</div> 
