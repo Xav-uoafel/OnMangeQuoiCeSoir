@@ -1,8 +1,8 @@
-# Planificateur de Recettes
+# OnMangeQuoiCeSoir
 
 ## Description du Projet
 
-Le Planificateur de Recettes est une application web qui permet aux utilisateurs de créer des plans de repas personnalisés en fonction de leurs préférences alimentaires, de leurs restrictions diététiques et des ingrédients de saison. L'application génère des recettes en utilisant l'API OpenAI, offrant ainsi une expérience culinaire unique et adaptée à chaque utilisateur.
+OnMangeQUoiCeSoir est une application web qui permet aux utilisateurs de créer des plans de repas personnalisés en fonction de leurs préférences alimentaires, de leurs restrictions diététiques et des ingrédients de saison. L'application génère des recettes en utilisant l'API OpenAI, offrant ainsi une expérience culinaire unique et adaptée à chaque utilisateur.
 
 ### Fonctionnalités Principales
 
