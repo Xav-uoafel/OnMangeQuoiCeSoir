@@ -1,0 +1,49 @@
+<div class="max-w-2xl mx-auto py-8 px-4">
+  <div class="bg-white dark:bg-gray-800 shadow-xl dark:shadow-gray-900/50 rounded-2xl p-8">
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Mon compte</h2>
+
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }, class: "space-y-5") do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div>
+        <%= f.label :email, "Email", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email",
+            class: "block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+
+      <div>
+        <%= f.label :password, "Nouveau mot de passe", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Laissez vide si vous ne voulez pas le changer</p>
+        <%= f.password_field :password, autocomplete: "new-password",
+            class: "block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+
+      <div>
+        <%= f.label :password_confirmation, "Confirmer le mot de passe", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <%= f.password_field :password_confirmation, autocomplete: "new-password",
+            class: "block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+
+      <div>
+        <%= f.label :current_password, "Mot de passe actuel", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Requis pour confirmer les modifications</p>
+        <%= f.password_field :current_password, autocomplete: "current-password",
+            class: "block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+
+      <div>
+        <%= f.submit "Mettre a jour",
+            class: "w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-colors cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="mt-8 bg-white dark:bg-gray-800 shadow rounded-2xl p-8">
+    <h3 class="text-lg font-semibold text-red-600 dark:text-red-400 mb-2">Zone de danger</h3>
+    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">La suppression de votre compte est irreversible.</p>
+    <%= button_to "Supprimer mon compte", registration_path(resource_name),
+        method: :delete,
+        class: "text-sm text-red-600 dark:text-red-400 hover:text-red-800 font-medium",
+        data: { turbo_confirm: "Etes-vous sur de vouloir supprimer votre compte ? Cette action est irreversible." } %>
+  </div>
+</div>

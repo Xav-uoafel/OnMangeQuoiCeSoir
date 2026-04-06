@@ -1,0 +1,51 @@
+<div class="max-w-2xl mx-auto py-8 px-4">
+  <h1 class="text-3xl font-bold mb-8">Mon profil alimentaire</h1>
+
+  <%= form_with(model: @user, url: profile_path, method: :patch, class: "space-y-6") do |f| %>
+    <div class="bg-white dark:bg-gray-800 shadow dark:shadow-gray-900/50 rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-4">Preferences</h2>
+
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <%= f.label :household_size, "Nombre de personnes", class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
+          <%= f.number_field :household_size, min: 1, max: 20,
+              class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+        </div>
+
+        <div>
+          <%= f.label :preferred_max_prep_time, "Temps de prep. max (min)", class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
+          <%= f.number_field :preferred_max_prep_time, min: 5,
+              class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 shadow dark:shadow-gray-900/50 rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-4">Restrictions alimentaires</h2>
+      <div class="space-y-3">
+        <% %w[vegetarien vegetalien sans_gluten sans_lactose halal casher].each do |restriction| %>
+          <div class="flex items-center">
+            <%= check_box_tag "user[dietary_restrictions][]", restriction,
+                @user.dietary_restrictions&.include?(restriction),
+                id: "profile_restriction_#{restriction}",
+                class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600 rounded" %>
+            <%= label_tag "profile_restriction_#{restriction}", restriction.humanize, class: "ml-2 text-sm text-gray-700 dark:text-gray-300" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 shadow dark:shadow-gray-900/50 rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-4">Ingredients a eviter</h2>
+      <%= text_field_tag "user[excluded_ingredients_text]",
+          @user.excluded_ingredients&.join(", "),
+          class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+          placeholder: "Separes par des virgules" %>
+    </div>
+
+    <div class="flex justify-between">
+      <%= link_to "Retour", authenticated_root_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700" %>
+      <%= f.submit "Enregistrer", class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
+    </div>
+  <% end %>
+</div>

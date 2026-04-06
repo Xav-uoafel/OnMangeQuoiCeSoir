@@ -27,32 +27,31 @@ class PlansController < ApplicationController
 
   def new
     @plan = current_user.plans.build
+    @default_constraints = {
+      servings: current_user.household_size,
+      max_preparation_time: current_user.preferred_max_prep_time,
+      dietary_restrictions: current_user.dietary_restrictions || [],
+      excluded_ingredients: current_user.excluded_ingredients || []
+    }
   end
 
   def create
     @plan = current_user.plans.build(plan_params)
-    
+
     if @plan.save
-      generator = RecipeGeneratorService.new(@plan)
-      
-      if generator.generate
-        redirect_to @plan, notice: 'Plan créé et recettes générées avec succès !'
-      else
-        redirect_to @plan, alert: 'Le plan a été créé mais une erreur est survenue lors de la génération des recettes.'
-      end
+      @plan.update!(status: 'generating')
+      RecipeGenerationJob.perform_later(@plan.id)
+      redirect_to @plan, notice: 'Plan créé ! Génération des recettes en cours...'
     else
       render :new, status: :unprocessable_entity
     end
   end
 
   def generate
-    generator = RecipeGeneratorService.new(@plan)
-    
-    if generator.generate
-      redirect_to @plan, notice: 'Les recettes ont été générées avec succès !'
-    else
-      redirect_to @plan, alert: 'Une erreur est survenue lors de la génération des recettes.'
-    end
+    @plan.plan_recipes.destroy_all
+    @plan.update!(status: 'generating')
+    RecipeGenerationJob.perform_later(@plan.id)
+    redirect_to @plan, notice: 'Régénération des recettes en cours...'
   end
 
   def destroy

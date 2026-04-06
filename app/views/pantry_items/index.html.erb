@@ -1,0 +1,67 @@
+<div class="max-w-4xl mx-auto py-8 px-4">
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold">Mon stock</h1>
+    <div class="flex gap-3">
+      <%= link_to "Scanner le frigo", new_pantry_scan_path,
+          class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700" %>
+    </div>
+  </div>
+
+  <!-- Ajout manuel -->
+  <div class="bg-white dark:bg-gray-800 shadow dark:shadow-gray-900/50 rounded-lg p-4 mb-6">
+    <h2 class="text-lg font-semibold mb-3">Ajouter un ingredient</h2>
+    <%= form_with(model: PantryItem.new, url: pantry_items_path, class: "flex gap-3 items-end") do |f| %>
+      <div class="flex-1">
+        <%= f.text_field :name, placeholder: "Nom de l'ingredient",
+            class: "block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+      <div class="w-40">
+        <%= f.select :category,
+            options_for_select(PantryItem::CATEGORIES.map { |c| [c.humanize, c] }),
+            { include_blank: "Categorie" },
+            class: "block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+      <div class="w-32">
+        <%= f.text_field :quantity_text, placeholder: "Quantite",
+            class: "block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+      <%= f.submit "Ajouter", class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm" %>
+    <% end %>
+  </div>
+
+  <!-- Liste par categorie -->
+  <% if @pantry_items.any? %>
+    <% @items_by_category.each do |category, items| %>
+      <div class="bg-white dark:bg-gray-800 shadow dark:shadow-gray-900/50 rounded-lg mb-4 overflow-hidden">
+        <div class="bg-gray-50 dark:bg-gray-800 px-4 py-2">
+          <h3 class="font-semibold text-gray-700 dark:text-gray-300"><%= (category || "autre").humanize %> (<%= items.size %>)</h3>
+        </div>
+        <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+          <% items.each do |item| %>
+            <li class="px-4 py-3 flex justify-between items-center">
+              <div>
+                <span class="font-medium"><%= item.name %></span>
+                <% if item.quantity_text.present? %>
+                  <span class="text-gray-500 dark:text-gray-400 text-sm ml-2"><%= item.quantity_text %></span>
+                <% end %>
+                <% if item.source == 'photo_scan' %>
+                  <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">scan</span>
+                <% end %>
+              </div>
+              <%= button_to pantry_item_path(item), method: :delete,
+                  class: "text-red-600 hover:text-red-800 text-sm",
+                  data: { turbo_confirm: "Retirer #{item.name} du stock ?" } do %>
+                Retirer
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="text-center py-12 text-gray-500 dark:text-gray-400">
+      <p class="text-lg">Votre stock est vide.</p>
+      <p class="mt-2">Scannez votre frigo ou ajoutez des ingredients manuellement.</p>
+    </div>
+  <% end %>
+</div>

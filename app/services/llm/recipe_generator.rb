@@ -6,8 +6,9 @@ module LLM
   class RecipeGenerator
     class GenerationError < StandardError; end
 
-    def initialize(constraints)
+    def initialize(constraints, user_context: {})
       @constraints = constraints
+      @user_context = user_context
       @client = OpenAI::Client.new(access_token: ENV.fetch('OPENAI_API_KEY'))
     end
 
@@ -60,6 +61,7 @@ module LLM
         6. Si aucun nombre de personnes n'est spécifié, prévois la recette pour 4 personnes par défaut.
         7. Pour les ingrédients, fournis une LISTE SIMPLE (pas un objet ou dictionnaire) avec un ingrédient par ligne, au format "quantité + nom de l'ingrédient" (ex: "400g de bœuf", "2 oignons", "1 cuillère à soupe d'huile d'olive").
         
+        #{user_context_prompt}
         Génère une recette au format JSON avec exactement les champs suivants :
         {
           "title": "Titre de la recette",
@@ -96,6 +98,24 @@ module LLM
       end
 
       "Génère une recette avec les contraintes suivantes : #{constraints_text.join('. ')}. RAPPEL : Ta réponse doit être UNIQUEMENT un objet JSON valide, sans aucun texte avant ou après. Évite de générer une soupe ou un potage si tu en as déjà généré récemment. IMPORTANT : Adapte PRÉCISÉMENT les quantités au nombre de personnes spécifié. Pour les ingrédients, fournis une LISTE SIMPLE (pas un objet ou dictionnaire) avec un ingrédient par ligne."
+    end
+
+    def user_context_prompt
+      parts = []
+
+      if @user_context[:liked_recipes].present?
+        parts << "L'utilisateur a recemment aime ces recettes : #{@user_context[:liked_recipes].join(', ')}. Propose des variantes ou des plats similaires."
+      end
+
+      if @user_context[:disliked_recipes].present?
+        parts << "L'utilisateur n'a PAS aime : #{@user_context[:disliked_recipes].join(', ')}. Evite ces types de plats."
+      end
+
+      if @user_context[:available_ingredients].present?
+        parts << "L'utilisateur a ces ingredients disponibles : #{@user_context[:available_ingredients].join(', ')}. Priorise les recettes utilisant ces ingredients."
+      end
+
+      parts.join("\n")
     end
 
     def parse_response(content)

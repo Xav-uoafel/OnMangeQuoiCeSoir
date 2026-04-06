@@ -1,0 +1,38 @@
+<div class="max-w-2xl mx-auto py-8 px-4">
+  <h1 class="text-3xl font-bold mb-8"><%= current_user.in_household? ? "Modifier le foyer" : "Creer ou rejoindre un foyer" %></h1>
+
+  <% unless current_user.in_household? %>
+    <!-- Rejoindre un foyer existant -->
+    <div class="bg-white dark:bg-gray-800 shadow dark:shadow-gray-900/50 rounded-lg p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">Rejoindre un foyer</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-4">Vous avez un code d'invitation ? Entrez-le ci-dessous.</p>
+
+      <%= form_with(url: join_households_path, method: :post, class: "flex gap-3") do |f| %>
+        <%= f.text_field :invite_code, placeholder: "Code d'invitation (8 caracteres)",
+            class: "flex-1 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-mono uppercase" %>
+        <%= f.submit "Rejoindre", class: "px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700" %>
+      <% end %>
+    </div>
+
+    <div class="text-center text-gray-500 dark:text-gray-400 my-4">ou</div>
+  <% end %>
+
+  <!-- Creer / Modifier un foyer -->
+  <div class="bg-white dark:bg-gray-800 shadow dark:shadow-gray-900/50 rounded-lg p-6">
+    <h2 class="text-xl font-semibold mb-4"><%= current_user.in_household? ? "Parametres" : "Creer un nouveau foyer" %></h2>
+
+    <%= form_with(model: @household, url: current_user.in_household? ? household_path : household_path,
+                  method: current_user.in_household? ? :patch : :post, class: "space-y-4") do |f| %>
+      <div>
+        <%= f.label :name, "Nom du foyer", class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
+        <%= f.text_field :name, placeholder: "Ex: Maison, Coloc Republique",
+            class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+
+      <div class="flex justify-end">
+        <%= f.submit current_user.in_household? ? "Enregistrer" : "Creer le foyer",
+            class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700" %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,13 +1,13 @@
-<div class="bg-white p-4 rounded-lg shadow mb-4">
+<div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow dark:shadow-gray-900/50 mb-4">
   <div class="flex justify-between items-start">
     <div>
       <div class="flex items-center gap-2 mb-2">
         <%= rating_stars(review.rating) %>
-        <span class="text-sm text-gray-500">
+        <span class="text-sm text-gray-500 dark:text-gray-400">
           par <%= review.user.email %> le <%= l(review.created_at, format: :long) %>
         </span>
       </div>
-      <p class="text-gray-700"><%= review.comment %></p>
+      <p class="text-gray-700 dark:text-gray-300"><%= review.comment %></p>
     </div>
 
     <% if review.user == current_user %>
@@ -27,4 +27,4 @@
       </div>
     <% end %>
   </div>
-</div> 
+</div>

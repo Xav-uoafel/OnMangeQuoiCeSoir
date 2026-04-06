@@ -1,26 +1,27 @@
+<%= turbo_stream_from "plan_#{@plan.id}" %>
+
 <div class="max-w-7xl mx-auto py-8 px-4">
   <div class="mb-8">
     <div class="flex justify-between items-start">
       <div>
         <h1 class="text-3xl font-bold mb-2">Plan de repas</h1>
-        <p class="text-gray-600">
+        <p class="text-gray-600 dark:text-gray-400">
           Du <%= l @plan.start_date, format: :long %> au <%= l @plan.end_date, format: :long %>
         </p>
       </div>
-      
-      <% if @plan.status == 'draft' %>
-        <div class="flex gap-4">
-          <%= button_to "Générer les recettes",
-              generate_plan_path(@plan),
-              method: :post,
-              class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
-        </div>
-      <% end %>
 
       <div class="flex gap-4">
+        <% if @plan.generated? %>
+          <%= button_to "Régénérer",
+              generate_plan_path(@plan),
+              method: :post,
+              class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700",
+              data: { turbo_confirm: "Régénérer supprimera les recettes actuelles. Continuer ?" } %>
+        <% end %>
+
         <%= button_to plan_path(@plan),
             method: :delete,
-            class: "inline-flex items-center px-4 py-2 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50",
+            class: "inline-flex items-center px-4 py-2 border border-red-300 dark:border-red-700 text-sm font-medium rounded-md text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20",
             data: { turbo_confirm: "Êtes-vous sûr de vouloir supprimer ce plan de repas ?" } do %>
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -30,7 +31,7 @@
       </div>
     </div>
 
-    <div class="mt-4 bg-gray-50 rounded-lg p-4">
+    <div class="mt-4 bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
       <h2 class="text-lg font-semibold mb-2">Contraintes</h2>
       <ul class="space-y-2">
         <li>Nombre de personnes : <%= @plan.constraints["servings"] %></li>
@@ -45,19 +46,7 @@
     </div>
   </div>
 
-  <div class="grid gap-6 mt-8">
-    <% (@plan.start_date..@plan.end_date).each do |date| %>
-      <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="bg-gray-50 px-4 py-2">
-          <h3 class="text-lg font-semibold"><%= l date, format: :long %></h3>
-        </div>
-        
-        <div class="divide-y divide-gray-200">
-          <% @plan.plan_recipes.where(scheduled_for: date).order(:meal_type).each do |plan_recipe| %>
-            <%= render 'recipe', plan_recipe: plan_recipe %>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
+  <div id="plan_status" class="mt-8">
+    <%= render 'status', plan: @plan %>
   </div>
-</div> 
+</div>

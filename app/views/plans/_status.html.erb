@@ -1,0 +1,39 @@
+<% if plan.generating? %>
+  <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-lg p-6 text-center">
+    <div class="animate-spin inline-block w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full mb-4"></div>
+    <h3 class="text-lg font-semibold text-indigo-900 dark:text-indigo-300">Génération en cours...</h3>
+    <p class="text-indigo-700 dark:text-indigo-300 mt-2">Nos chefs virtuels préparent vos recettes. Cela peut prendre quelques instants.</p>
+  </div>
+<% elsif plan.failed? %>
+  <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-6 text-center">
+    <svg class="w-8 h-8 text-red-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+    </svg>
+    <h3 class="text-lg font-semibold text-red-900 dark:text-red-400">Erreur de génération</h3>
+    <p class="text-red-700 dark:text-red-400 mt-2">Un problème est survenu. Vous pouvez réessayer.</p>
+    <%= button_to "Réessayer", generate_plan_path(plan), method: :post,
+        class: "mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700" %>
+  </div>
+<% elsif plan.generated? %>
+  <div class="grid gap-6">
+    <% (plan.start_date..plan.end_date).each do |date| %>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/50 overflow-hidden">
+        <div class="bg-gray-50 dark:bg-gray-800 px-4 py-2">
+          <h3 class="text-lg font-semibold"><%= l date, format: :long %></h3>
+        </div>
+        <div class="divide-y divide-gray-200 dark:divide-gray-700">
+          <% plan.plan_recipes.includes(:recipe).where(scheduled_for: date).order(:meal_type).each do |plan_recipe| %>
+            <%= render 'recipe', plan_recipe: plan_recipe %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 text-center">
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Plan en brouillon</h3>
+    <p class="text-gray-600 dark:text-gray-400 mt-2">Lancez la génération pour obtenir vos recettes.</p>
+    <%= button_to "Générer les recettes", generate_plan_path(plan), method: :post,
+        class: "mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
+  </div>
+<% end %>

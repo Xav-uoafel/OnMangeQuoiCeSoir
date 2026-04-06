@@ -1,6 +1,7 @@
 class Recipe < ApplicationRecord
     belongs_to :user
     has_many :reviews, dependent: :destroy
+    has_many :cooked_recipes, dependent: :destroy
 
     validates :title, presence: { message: "Le titre est obligatoire" }, 
               length: { minimum: 3, maximum: 100 }

@@ -2,6 +2,7 @@ class Plan < ApplicationRecord
   belongs_to :user
   has_many :plan_recipes, dependent: :destroy
   has_many :recipes, through: :plan_recipes
+  has_one :shopping_list, dependent: :destroy
 
   attribute :status, :string, default: 'draft'
   
@@ -14,12 +15,24 @@ class Plan < ApplicationRecord
   validates :constraints, presence: true
   validates :start_date, presence: true
   validates :end_date, presence: true
-  validates :status, inclusion: { in: %w[draft generated] }
+  validates :status, inclusion: { in: %w[draft generating generated failed] }
   validate :end_date_after_start_date
   validate :start_date_must_be_monday
   validate :end_date_must_be_sunday
 
   before_validation :ensure_constraints_format
+
+  def generating?
+    status == 'generating'
+  end
+
+  def generated?
+    status == 'generated'
+  end
+
+  def failed?
+    status == 'failed'
+  end
 
   private
 

@@ -1,6 +1,6 @@
 class RecipesController < ApplicationController
     before_action :authenticate_user!, except: [:index, :show]
-    before_action :set_recipe, only: [:show, :edit, :update, :destroy]
+    before_action :set_recipe, only: [:show, :edit, :update, :destroy, :mark_cooked]
     before_action :authorize_recipe, only: [:edit, :update, :destroy]
 
     def index
@@ -42,6 +42,18 @@ class RecipesController < ApplicationController
     def destroy
         @recipe.destroy
         redirect_to recipes_path, notice: I18n.t('flash.recipe_deleted')
+    end
+
+    def mark_cooked
+      cooked = current_user.cooked_recipes.find_or_initialize_by(recipe: @recipe)
+      cooked.cooked_on = Date.current
+      cooked.liked = params[:liked] == "true" ? true : (params[:liked] == "false" ? false : nil)
+
+      if cooked.save
+        redirect_to @recipe, notice: 'Recette enregistree !'
+      else
+        redirect_to @recipe, alert: 'Erreur lors de l\'enregistrement.'
+      end
     end
 
     private
