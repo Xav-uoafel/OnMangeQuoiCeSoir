@@ -1,0 +1,64 @@
+<div class="mx-auto max-w-2xl space-y-6">
+  <div class="app-card p-5 sm:p-8">
+    <p class="page-kicker">Scan photo</p>
+    <h1 class="page-title mt-2">Scanner le frigo</h1>
+    <p class="page-subtitle">Ajoutez jusqu’à 5 photos nettes. Rien ne sera ajouté au stock sans votre validation.</p>
+  </div>
+
+  <%= form_with(
+        model: @pantry_scan,
+        url: pantry_scans_path,
+        multipart: true,
+        class: "space-y-6",
+        data: {
+          controller: "file-upload",
+          file_upload_allowed_types_value: PantryScan::ALLOWED_PHOTO_CONTENT_TYPES.to_json,
+          file_upload_max_files_value: PantryScan::MAX_PHOTOS,
+          file_upload_max_file_size_value: PantryScan::MAX_PHOTO_SIZE,
+          file_upload_max_total_size_value: PantryScan::MAX_TOTAL_PHOTOS_SIZE
+        }
+      ) do |f| %>
+    <% if @pantry_scan.errors.any? %>
+      <div class="rounded-3xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900 dark:bg-red-950/40 dark:text-red-100" role="alert">
+        <h2 class="font-black">Le scan ne peut pas être lancé</h2>
+        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm">
+          <% @pantry_scan.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="app-card p-5 sm:p-6">
+      <div>
+        <%= f.label :label, "Nom du scan", class: "form-label" %>
+        <%= f.text_field :label, placeholder: "Ex. Frigo ou placard cuisine", autocomplete: "off",
+            aria: { describedby: "scan-label-help" },
+            class: "form-input mt-2" %>
+        <p id="scan-label-help" class="form-help">Optionnel, mais pratique pour retrouver l’origine des ingrédients.</p>
+      </div>
+
+      <div class="mt-6 rounded-3xl border-2 border-dashed border-emerald-300 bg-emerald-50/70 p-5 dark:border-emerald-800 dark:bg-emerald-950/20">
+        <%= f.label :photos, "Photos à analyser", class: "form-label text-base" %>
+        <p id="scan-photos-help" class="form-help">
+          JPG, PNG ou WebP, entre 1 et <%= PantryScan::MAX_PHOTOS %> photos.
+          <%= PantryScan::MAX_PHOTO_SIZE / 1.megabyte %> Mo maximum par photo et
+          <%= PantryScan::MAX_TOTAL_PHOTOS_SIZE / 1.megabyte %> Mo au total.
+        </p>
+        <%= f.file_field :photos, multiple: true, accept: PantryScan::ALLOWED_PHOTO_CONTENT_TYPES.join(","), required: true,
+            aria: { describedby: "scan-photos-help scan-files-summary" },
+            data: { file_upload_target: "input", action: "change->file-upload#update" },
+            class: "mt-4 block w-full text-sm text-slate-700 file:mr-3 file:min-h-11 file:cursor-pointer file:rounded-2xl file:border-0 file:bg-slate-950 file:px-4 file:py-2.5 file:text-sm file:font-black file:text-white hover:file:bg-slate-800 dark:text-slate-200 dark:file:bg-emerald-400 dark:file:text-slate-950" %>
+        <p id="scan-files-summary" class="mt-4 rounded-2xl bg-white/70 px-4 py-3 text-sm font-bold text-slate-700 dark:bg-slate-950/50 dark:text-slate-200" data-file-upload-target="summary" role="status" aria-live="polite">Aucune photo sélectionnée.</p>
+      </div>
+    </div>
+
+    <div class="mobile-sticky-actions" aria-label="Actions du scan">
+      <div class="mx-auto grid max-w-2xl grid-cols-[auto_1fr] gap-3 sm:flex sm:justify-end">
+        <%= link_to "Annuler", pantry_items_path, class: "btn-secondary" %>
+        <%= f.submit "Analyser les photos", class: "btn-primary w-full cursor-pointer sm:w-auto",
+            data: { file_upload_target: "submit", turbo_submits_with: "Envoi des photos…" } %>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,101 @@
+name: CI
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: onmangequoi
+          POSTGRES_PASSWORD: onmangequoi
+          POSTGRES_DB: onmangequoicesoir_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U onmangequoi -d onmangequoicesoir_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      RAILS_ENV: test
+      DATABASE_HOST: localhost
+      DATABASE_USERNAME: onmangequoi
+      DATABASE_PASSWORD: onmangequoi
+      DATABASE_PORT: 5432
+      TEST_DATABASE_NAME: onmangequoicesoir_test
+      OPENAI_API_KEY: test_key
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.2'
+          bundler-cache: true
+
+      - name: Setup database
+        run: bin/rails db:schema:load
+
+      - name: Build Tailwind CSS
+        run: bin/rails tailwindcss:build
+
+      - name: Run application tests
+        run: bin/rails test
+
+      - name: Run browser tests
+        run: bin/rails test:system
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.2'
+          bundler-cache: true
+
+      - name: Run RuboCop
+        run: bundle exec rubocop
+
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.2'
+          bundler-cache: true
+
+      - name: Scan application code
+        run: bundle exec brakeman --no-pager
+
+      - name: Scan gem vulnerabilities
+        run: bundle exec bundle-audit check --update
+
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build production image
+        run: docker build --tag onmangequoi:test .

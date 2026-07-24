@@ -1,5 +1,9 @@
-<h1><%= t('recipes.new.title') %></h1>
+<div class="mx-auto max-w-4xl space-y-6">
+  <div class="app-card p-5 sm:p-8">
+    <p class="page-kicker">Carnet personnel</p>
+    <h1 class="page-title mt-2">Nouvelle recette</h1>
+    <p class="page-subtitle">Ajoutez une recette suffisamment précise pour qu’elle puisse ensuite alimenter vos plans et listes de courses.</p>
+  </div>
 
-<%= render "form" %>
-
-<%= link_to t('recipes.new.back'), recipes_path, class: "btn" %>
+  <%= render "form" %>
+</div>

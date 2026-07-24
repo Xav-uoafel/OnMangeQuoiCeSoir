@@ -1,0 +1,74 @@
+<% detected_items = scan.pending_review? ? scan.detected_items : scan.pantry_items.order(:name) %>
+
+<div id="scan_workspace" class="space-y-6">
+  <div id="scan_status" role="status" aria-live="polite" aria-busy="<%= scan.processing? && !scan.analysis_stale? %>">
+    <%= render "pantry_scans/status", scan: scan %>
+  </div>
+
+  <% if scan.pending_review? %>
+    <div class="app-card overflow-hidden">
+      <div class="border-b border-slate-100 bg-white/60 px-4 py-4 dark:border-slate-800 dark:bg-slate-900/60">
+        <h2 class="text-lg font-black">Valider les ingrédients détectés</h2>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Décochez les faux positifs et corrigez les noms avant ajout au stock.</p>
+      </div>
+
+      <%= form_with(url: confirm_pantry_scan_path(scan), method: :post) do %>
+        <ul class="divide-y divide-slate-100 dark:divide-slate-800">
+          <% detected_items.each_with_index do |item, index| %>
+            <li class="grid gap-3 px-4 py-4 md:grid-cols-[auto_1fr_12rem_9rem] md:items-center">
+              <label class="choice-card md:justify-center md:border-0 md:bg-transparent md:px-2 md:hover:bg-transparent dark:md:bg-transparent">
+                <%= check_box_tag "detected_items[#{index}][selected]", "1", true,
+                    id: "detected_item_#{index}_selected" %>
+                <span class="md:hidden">Garder <span class="sr-only"><%= item["name"] %></span></span>
+              </label>
+              <%= label_tag "detected_item_#{index}_name", "Nom de l’ingrédient #{index + 1}", class: "sr-only" %>
+              <%= text_field_tag "detected_items[#{index}][name]", item["name"],
+                  id: "detected_item_#{index}_name",
+                  required: true,
+                  autocomplete: "off",
+                  class: "form-input text-sm" %>
+              <%= label_tag "detected_item_#{index}_category", "Catégorie de l’ingrédient #{index + 1}", class: "sr-only" %>
+              <%= select_tag "detected_items[#{index}][category]",
+                  options_for_select(PantryItem::CATEGORIES.map { |category| [ingredient_category_label(category), category] }, item["category"]),
+                  include_blank: "Catégorie",
+                  id: "detected_item_#{index}_category",
+                  class: "form-input text-sm" %>
+              <%= label_tag "detected_item_#{index}_quantity", "Quantité de l’ingrédient #{index + 1}", class: "sr-only" %>
+              <%= text_field_tag "detected_items[#{index}][quantity_text]", item["quantity_text"],
+                  id: "detected_item_#{index}_quantity",
+                  placeholder: "Ex. 500 g",
+                  autocomplete: "off",
+                  class: "form-input text-sm" %>
+            </li>
+          <% end %>
+        </ul>
+
+        <div class="mobile-sticky-actions">
+          <div class="mx-auto grid max-w-4xl grid-cols-2 gap-3">
+            <%= link_to "Stock", pantry_items_path, class: "btn-secondary w-full" %>
+            <%= submit_tag "Ajouter au stock", class: "btn-primary w-full", data: { turbo_submits_with: "Ajout en cours…" } %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% elsif scan.completed? && detected_items.any? %>
+    <div class="app-card overflow-hidden">
+      <div class="border-b border-slate-100 bg-white/60 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/60">
+        <h2 class="font-black"><%= detected_items.size %> ingrédients ajoutés</h2>
+      </div>
+      <ul class="divide-y divide-slate-100 dark:divide-slate-800">
+        <% detected_items.each do |item| %>
+          <li class="px-4 py-3">
+            <div class="flex flex-col gap-1 sm:flex-row sm:items-center">
+              <span class="font-medium"><%= item.name %></span>
+              <span class="text-sm text-slate-500 dark:text-slate-400 sm:ml-2"><%= ingredient_category_label(item.category || "autre") %></span>
+              <% if item.quantity_text.present? %>
+                <span class="text-sm text-slate-400 sm:ml-2">· <%= item.quantity_text %></span>
+              <% end %>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>

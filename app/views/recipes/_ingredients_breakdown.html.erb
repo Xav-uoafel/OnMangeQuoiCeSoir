@@ -1,0 +1,50 @@
+<div class="ingredients">
+  <% if recipe_ingredient_breakdown?(recipe) %>
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/30">
+        <h3 class="text-sm font-black text-emerald-900 dark:text-emerald-200">Déjà au placard</h3>
+        <% if recipe.ingredients_from_pantry.present? %>
+          <ul class="mt-3 space-y-2 text-sm text-emerald-950 dark:text-emerald-100">
+            <% recipe.ingredients_from_pantry.each do |ingredient| %>
+              <li class="flex items-start gap-2">
+                <span class="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                <span><%= ingredient_label(ingredient) %></span>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="mt-3 text-sm text-emerald-800 dark:text-emerald-300">Aucun ingrédient identifié dans le stock.</p>
+        <% end %>
+      </div>
+
+      <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/30">
+        <h3 class="text-sm font-black text-amber-900 dark:text-amber-200">À acheter</h3>
+        <% if recipe.ingredients_to_buy.present? %>
+          <ul class="mt-3 space-y-2 text-sm text-amber-950 dark:text-amber-100">
+            <% recipe.ingredients_to_buy.each do |ingredient| %>
+              <li class="flex items-start gap-2">
+                <span class="mt-1 h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                <span><%= ingredient_label(ingredient) %></span>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="mt-3 text-sm text-amber-800 dark:text-amber-300">Rien à acheter pour cette recette.</p>
+        <% end %>
+      </div>
+    </div>
+  <% elsif recipe.recipe_ingredients.present? %>
+    <ul class="space-y-3 text-sm text-slate-700 dark:text-slate-300">
+      <% recipe.structured_ingredients.each do |ingredient| %>
+        <li class="flex items-start gap-2">
+          <span class="mt-2 h-1.5 w-1.5 rounded-full bg-[#627a31]"></span>
+          <span><%= ingredient_label(ingredient) %></span>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <div class="text-sm leading-7 text-slate-700 dark:text-slate-300">
+      <%= simple_format recipe.ingredients %>
+    </div>
+  <% end %>
+</div>

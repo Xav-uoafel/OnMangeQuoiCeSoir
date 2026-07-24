@@ -1,0 +1,44 @@
+<div class="mx-auto max-w-2xl space-y-6">
+  <div class="app-card p-5 sm:p-8">
+    <p class="page-kicker">Foyer</p>
+    <h1 class="page-title mt-2">Mon foyer</h1>
+    <p class="page-subtitle">Partagez le même stock et les mêmes plans avec les personnes de votre foyer.</p>
+  </div>
+
+  <div class="app-card p-5 sm:p-6">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <h2 class="text-2xl font-black"><%= @household.name %></h2>
+      <% if current_user.household_admin? %>
+        <%= link_to "Modifier le foyer", edit_household_path, class: "btn-secondary btn-compact" %>
+      <% end %>
+    </div>
+
+    <div class="mt-5 rounded-3xl border border-emerald-200 bg-emerald-50/80 p-4 dark:border-emerald-900 dark:bg-emerald-950/30" data-controller="clipboard">
+      <p class="text-sm font-black text-emerald-800 dark:text-emerald-200">Code d’invitation</p>
+      <div class="mt-2 flex flex-col gap-3 min-[360px]:flex-row min-[360px]:items-center min-[360px]:justify-between">
+        <code class="text-2xl font-black tracking-widest text-slate-950 dark:text-white" data-clipboard-target="source"><%= @household.invite_code %></code>
+        <button type="button" class="btn-secondary btn-compact" data-action="clipboard#copy">Copier</button>
+      </div>
+      <p class="mt-3 text-xs font-bold text-emerald-800 dark:text-emerald-200" data-clipboard-target="feedback" aria-live="polite">Partagez ce code avec les personnes à inviter.</p>
+    </div>
+
+    <section class="mt-6" aria-labelledby="household-members-title">
+      <div class="flex items-center justify-between gap-3">
+        <h3 id="household-members-title" class="text-lg font-black">Membres</h3>
+        <span class="pill"><%= @members.size %></span>
+      </div>
+      <ul class="mt-3 divide-y divide-slate-100 dark:divide-slate-800">
+        <% @members.each do |member| %>
+          <li class="flex min-h-14 items-center justify-between gap-3 py-3">
+            <span class="min-w-0 break-all text-sm font-bold"><%= member.email %></span>
+            <% if member.household_admin? %>
+              <span class="pill shrink-0">Admin</span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  </div>
+
+  <%= link_to "Retour", authenticated_root_path, class: "btn-secondary w-full sm:w-auto" %>
+</div>

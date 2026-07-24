@@ -1,0 +1,61 @@
+<div class="mx-auto max-w-2xl space-y-6">
+  <div class="app-card p-5 sm:p-8">
+    <p class="page-kicker">Foyer</p>
+    <h1 class="page-title mt-2"><%= current_user.in_household? ? "Modifier le foyer" : "Créer ou rejoindre un foyer" %></h1>
+    <p class="page-subtitle">Un foyer permet de partager le stock et les menus sans multiplier les saisies.</p>
+  </div>
+
+  <% if @household.errors.any? %>
+    <div class="rounded-3xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900 dark:bg-red-950/40 dark:text-red-100" role="alert">
+      <h2 class="font-black">Vérifiez les informations saisies</h2>
+      <ul class="mt-2 list-disc space-y-1 pl-5 text-sm">
+        <% @household.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% unless current_user.in_household? %>
+    <div class="app-card p-5 sm:p-6">
+      <h2 class="text-xl font-black">Rejoindre un foyer</h2>
+      <p class="form-help">Saisissez le code à 8 caractères reçu d’un autre membre.</p>
+
+      <%= form_with(url: join_household_path, method: :post, class: "mt-5 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end") do |f| %>
+        <div>
+          <%= f.label :invite_code, "Code d’invitation", class: "form-label" %>
+          <%= f.text_field :invite_code, placeholder: "AB12CD34", required: true, minlength: 8, maxlength: 8,
+              autocapitalize: "characters", autocomplete: "off", spellcheck: false,
+              class: "form-input mt-2 font-mono uppercase tracking-widest" %>
+        </div>
+        <%= f.submit "Rejoindre", class: "btn-primary w-full cursor-pointer sm:w-auto" %>
+      <% end %>
+    </div>
+
+    <div class="flex items-center gap-4 text-sm font-black uppercase tracking-[0.2em] text-slate-400" aria-hidden="true">
+      <span class="h-px flex-1 bg-slate-300 dark:bg-slate-700"></span>
+      ou
+      <span class="h-px flex-1 bg-slate-300 dark:bg-slate-700"></span>
+    </div>
+  <% end %>
+
+  <div class="app-card p-5 sm:p-6">
+    <h2 class="text-xl font-black"><%= current_user.in_household? ? "Nom du foyer" : "Créer un nouveau foyer" %></h2>
+
+    <%= form_with(model: @household, url: household_path,
+                  method: current_user.in_household? ? :patch : :post, class: "mt-5 space-y-5") do |f| %>
+      <div>
+        <%= f.label :name, "Nom du foyer", class: "form-label" %>
+        <%= f.text_field :name, placeholder: "Ex. Maison ou Coloc République", required: true, maxlength: 100,
+            autocomplete: "off", class: "form-input mt-2" %>
+      </div>
+
+      <div class="grid grid-cols-[auto_1fr] gap-3 sm:flex sm:justify-end">
+        <%= link_to "Annuler", current_user.in_household? ? household_path : authenticated_root_path, class: "btn-secondary" %>
+        <%= f.submit current_user.in_household? ? "Enregistrer" : "Créer le foyer",
+            class: "btn-primary w-full cursor-pointer sm:w-auto",
+            data: { turbo_submits_with: "Enregistrement…" } %>
+      </div>
+    <% end %>
+  </div>
+</div>

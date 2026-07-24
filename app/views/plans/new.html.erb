@@ -1,106 +1,154 @@
-<div class="max-w-4xl mx-auto py-8 px-4">
-  <h1 class="text-3xl font-bold mb-8">Créer un nouveau plan</h1>
+<div class="mx-auto max-w-4xl space-y-6">
+  <div class="app-card p-5 sm:p-8">
+    <p class="page-kicker">Planification</p>
+    <h1 class="page-title mt-2">Créer un nouveau plan</h1>
+    <p class="page-subtitle">Choisissez les repas vraiment utiles. Votre stock et vos préférences seront pris en compte automatiquement.</p>
+  </div>
 
-  <%= form_with(model: @plan, local: true, class: "space-y-8") do |f| %>
-    <div class="bg-white shadow rounded-lg p-6">
-      <h2 class="text-xl font-semibold mb-6">Période</h2>
-      
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+  <%= form_with(model: @plan, class: "space-y-6") do |f| %>
+    <% if @plan.errors.any? %>
+      <div class="rounded-3xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900 dark:bg-red-950/40 dark:text-red-100" role="alert" aria-live="assertive">
+        <h2 class="font-black"><%= pluralize(@plan.errors.count, "erreur") %> à corriger</h2>
+        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm">
+          <% @plan.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <fieldset class="app-card p-5 sm:p-6" aria-describedby="plan-period-help">
+      <legend class="px-1 text-xl font-black">Période</legend>
+      <p id="plan-period-help" class="form-help mt-0">Une semaine commence le lundi et se termine le dimanche.</p>
+
+      <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div>
-          <%= f.label :start_date, "Date de début", class: "block text-sm font-medium text-gray-700" %>
-          <%= f.date_field :start_date, 
-              value: Date.current.beginning_of_week,
-              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          <%= f.label :start_date, "Date de début", class: "form-label" %>
+          <%= f.date_field :start_date,
+              value: @plan.start_date || Date.current.beginning_of_week,
+              required: true,
+              class: "form-input mt-2" %>
         </div>
 
         <div>
-          <%= f.label :end_date, "Date de fin", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.label :end_date, "Date de fin", class: "form-label" %>
           <%= f.date_field :end_date,
-              value: Date.current.end_of_week,
-              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+              value: @plan.end_date || Date.current.end_of_week,
+              required: true,
+              class: "form-input mt-2" %>
         </div>
       </div>
-    </div>
+    </fieldset>
 
-    <div class="bg-white shadow rounded-lg p-6">
-      <h2 class="text-xl font-semibold mb-6">Repas à générer</h2>
-      
-      <div class="space-y-6">
-        <div class="border-b pb-6">
-          <h3 class="text-lg font-medium mb-4">En semaine (Lundi - Vendredi)</h3>
-          <div class="space-y-4">
-            <div class="flex items-center">
-              <%= f.check_box :weekday_lunches, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
-              <%= f.label :weekday_lunches, "Déjeuners", class: "ml-2 block text-sm text-gray-900" %>
-            </div>
-            <div class="flex items-center">
-              <%= f.check_box :weekday_dinners, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
-              <%= f.label :weekday_dinners, "Dîners", class: "ml-2 block text-sm text-gray-900" %>
-            </div>
+    <fieldset class="app-card p-5 sm:p-6">
+      <legend class="px-1 text-xl font-black">Repas à générer</legend>
+      <p class="form-help mt-0">Vous pourrez toujours créer un autre plan plus tard.</p>
+
+      <div class="mt-5 grid gap-4 sm:grid-cols-2">
+        <div class="app-card-muted p-4">
+          <h2 class="mb-3 text-lg font-black">Semaine</h2>
+          <div class="grid gap-3">
+            <label class="choice-card">
+              <%= f.check_box :weekday_lunches %>
+              <span>Déjeuners</span>
+            </label>
+            <label class="choice-card">
+              <%= f.check_box :weekday_dinners %>
+              <span>Dîners</span>
+            </label>
           </div>
         </div>
 
-        <div>
-          <h3 class="text-lg font-medium mb-4">Weekend (Samedi - Dimanche)</h3>
-          <div class="space-y-4">
-            <div class="flex items-center">
-              <%= f.check_box :weekend_lunches, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
-              <%= f.label :weekend_lunches, "Déjeuners", class: "ml-2 block text-sm text-gray-900" %>
-            </div>
-            <div class="flex items-center">
-              <%= f.check_box :weekend_dinners, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
-              <%= f.label :weekend_dinners, "Dîners", class: "ml-2 block text-sm text-gray-900" %>
-            </div>
+        <div class="app-card-muted p-4">
+          <h2 class="mb-3 text-lg font-black">Week-end</h2>
+          <div class="grid gap-3">
+            <label class="choice-card">
+              <%= f.check_box :weekend_lunches %>
+              <span>Déjeuners</span>
+            </label>
+            <label class="choice-card">
+              <%= f.check_box :weekend_dinners %>
+              <span>Dîners</span>
+            </label>
           </div>
         </div>
       </div>
-    </div>
+    </fieldset>
 
-    <div class="bg-white shadow sm:rounded-lg p-6">
-      <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+    <div class="app-card p-5 sm:p-6">
+      <h2 class="text-xl font-black">Préférences du plan</h2>
+      <p class="form-help">Ces réglages ne modifieront pas votre profil.</p>
+
+      <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div>
-          <%= f.label :constraints_servings, "Nombre de personnes", class: "block text-sm font-medium text-gray-700" %>
-          <%= f.number_field :constraints_servings, min: 1, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          <%= f.label :constraints_servings, "Nombre de personnes", class: "form-label" %>
+          <%= f.number_field :constraints_servings, min: 1, max: 20, required: true,
+              value: @plan.constraints&.dig("servings") || @default_constraints[:servings],
+              inputmode: "numeric",
+              class: "form-input mt-2" %>
         </div>
 
         <div>
-          <%= f.label :constraints_max_preparation_time, "Temps de préparation maximum (minutes)", class: "block text-sm font-medium text-gray-700" %>
-          <%= f.number_field :constraints_max_preparation_time, min: 0, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          <%= f.label :constraints_max_preparation_time, "Préparation maximum (minutes)", class: "form-label" %>
+          <%= f.number_field :constraints_max_preparation_time, min: 5, max: 1440, required: true,
+              value: @plan.constraints&.dig("max_preparation_time") || @default_constraints[:max_preparation_time],
+              inputmode: "numeric",
+              class: "form-input mt-2" %>
         </div>
+
+        <div class="app-card-muted p-4 sm:col-span-2">
+          <%= f.label :constraints_weekly_budget, "Budget courses pour la semaine", class: "form-label" %>
+          <div class="relative mt-2 max-w-xs">
+            <span class="pointer-events-none absolute inset-y-0 left-4 flex items-center font-black text-slate-500 dark:text-slate-400" aria-hidden="true">€</span>
+            <%= f.number_field :constraints_weekly_budget,
+                min: 0.01,
+                max: 10_000,
+                step: 0.01,
+                value: @plan.weekly_budget || @default_constraints[:weekly_budget],
+                inputmode: "decimal",
+                class: "form-input pl-9",
+                aria: { describedby: "weekly-budget-help" },
+                placeholder: "80" %>
+          </div>
+          <p id="weekly-budget-help" class="form-help">Facultatif. Le générateur privilégiera des recettes compatibles et la liste de courses suivra la marge restante.</p>
+        </div>
+
+        <fieldset class="sm:col-span-2">
+          <legend class="form-label">Restrictions alimentaires</legend>
+          <div class="mt-3 grid gap-3 sm:grid-cols-2">
+            <% {
+              vegetarien: "Végétarien",
+              vegetalien: "Végétalien",
+              sans_gluten: "Sans gluten",
+              sans_lactose: "Sans lactose"
+            }.each do |restriction, label| %>
+              <label class="choice-card">
+                <%= f.check_box "constraints_dietary_restrictions_#{restriction}",
+                    checked: @default_constraints[:dietary_restrictions].include?(restriction.to_s) %>
+                <span><%= label %></span>
+              </label>
+            <% end %>
+          </div>
+        </fieldset>
 
         <div class="sm:col-span-2">
-          <label class="block text-sm font-medium text-gray-700">Restrictions alimentaires</label>
-          <div class="mt-2 space-y-2">
-            <div class="flex items-center">
-              <%= f.check_box :constraints_dietary_restrictions_vegetarien, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
-              <label class="ml-2 text-sm text-gray-700">Végétarien</label>
-            </div>
-            <div class="flex items-center">
-              <%= f.check_box :constraints_dietary_restrictions_vegetalien, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
-              <label class="ml-2 text-sm text-gray-700">Végétalien</label>
-            </div>
-            <div class="flex items-center">
-              <%= f.check_box :constraints_dietary_restrictions_sans_gluten, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
-              <label class="ml-2 text-sm text-gray-700">Sans gluten</label>
-            </div>
-            <div class="flex items-center">
-              <%= f.check_box :constraints_dietary_restrictions_sans_lactose, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
-              <label class="ml-2 text-sm text-gray-700">Sans lactose</label>
-            </div>
-          </div>
-        </div>
-
-        <div class="sm:col-span-2">
-          <%= f.label :constraints_excluded_ingredients, "Ingrédients à exclure", class: "block text-sm font-medium text-gray-700" %>
-          <%= f.text_field :constraints_excluded_ingredients, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500", 
-                         placeholder: "Séparés par des virgules" %>
+          <%= f.label :constraints_excluded_ingredients, "Ingrédients à exclure", class: "form-label" %>
+          <%= f.text_field :constraints_excluded_ingredients,
+              value: @plan.constraints&.dig("excluded_ingredients")&.join(", ") || @default_constraints[:excluded_ingredients]&.join(", "),
+              class: "form-input mt-2",
+              aria: { describedby: "excluded-ingredients-help" },
+              placeholder: "Ex. fruits de mer, noix" %>
+          <p id="excluded-ingredients-help" class="form-help">Séparez les ingrédients par des virgules.</p>
         </div>
       </div>
     </div>
 
-    <div class="mt-6 flex justify-end space-x-3">
-      <%= link_to "Annuler", plans_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
-      <%= f.submit "Créer et générer les recettes", class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
+    <div class="mobile-sticky-actions" aria-label="Actions du formulaire">
+      <div class="mx-auto grid max-w-4xl grid-cols-[auto_1fr] gap-3 sm:flex sm:justify-end">
+        <%= link_to "Annuler", plans_path, class: "btn-secondary" %>
+        <%= f.submit "Créer et générer", class: "btn-primary w-full cursor-pointer sm:w-auto",
+            data: { turbo_submits_with: "Création en cours…" } %>
+      </div>
     </div>
   <% end %>
-</div> 
+</div>

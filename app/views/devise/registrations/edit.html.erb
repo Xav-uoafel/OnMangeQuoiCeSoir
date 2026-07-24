@@ -1,0 +1,55 @@
+<div class="mx-auto max-w-2xl space-y-6">
+  <div class="app-card p-6 sm:p-8">
+    <p class="page-kicker">Compte</p>
+    <h1 class="mt-2 text-3xl font-black tracking-tight text-slate-950 dark:text-white">Mon compte</h1>
+    <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Mettez à jour votre email ou votre mot de passe.</p>
+  </div>
+
+  <div class="app-card p-5 sm:p-8">
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, class: "space-y-5" }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div>
+        <%= f.label :email, "Adresse email", class: "form-label" %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", required: true,
+            class: "form-input mt-2" %>
+      </div>
+
+      <div>
+        <%= f.label :password, "Nouveau mot de passe", class: "form-label" %>
+        <p id="password-optional" class="form-help">Laissez vide si vous ne voulez pas le changer.</p>
+        <%= f.password_field :password, autocomplete: "new-password",
+            aria: { describedby: "password-optional" },
+            class: "form-input mt-2" %>
+      </div>
+
+      <div>
+        <%= f.label :password_confirmation, "Confirmer le mot de passe", class: "form-label" %>
+        <%= f.password_field :password_confirmation, autocomplete: "new-password",
+            class: "form-input mt-2" %>
+      </div>
+
+      <div>
+        <%= f.label :current_password, "Mot de passe actuel", class: "form-label" %>
+        <p id="current-password-required" class="form-help">Requis pour confirmer les modifications.</p>
+        <%= f.password_field :current_password, autocomplete: "current-password", required: true,
+            aria: { describedby: "current-password-required" },
+            class: "form-input mt-2" %>
+      </div>
+
+      <div>
+        <%= f.submit "Mettre à jour",
+            class: "btn-primary w-full cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="app-card border-red-200 p-5 sm:p-8 dark:border-red-900">
+    <h2 class="text-lg font-black text-red-700 dark:text-red-300">Zone de danger</h2>
+    <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">La suppression de votre compte est irréversible.</p>
+    <%= button_to "Supprimer mon compte", registration_path(resource_name),
+        method: :delete,
+        class: "btn-danger mt-5 w-full cursor-pointer",
+        data: { turbo_confirm: "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible." } %>
+  </div>
+</div>

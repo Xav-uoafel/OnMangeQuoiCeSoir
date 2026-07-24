@@ -11,7 +11,7 @@ class ReviewsController < ApplicationController
       redirect_to @recipe, notice: I18n.t('flash.review_created')
     else
       @reviews = @recipe.reviews.includes(:user)
-      render "recipes/show", status: :unprocessable_entity
+      render "recipes/show", status: :unprocessable_content
     end
   end
 
@@ -23,7 +23,7 @@ class ReviewsController < ApplicationController
     if @review.update(review_params)
       redirect_to @recipe, notice: I18n.t('flash.review_updated')
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

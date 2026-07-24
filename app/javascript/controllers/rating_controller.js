@@ -4,8 +4,6 @@ export default class extends Controller {
   static targets = ["star", "input"]
 
   connect() {
-    console.log("Rating controller connected")
-    console.log("Stars found:", this.starTargets.length)
     this.setInitialRating()
   }
 
@@ -17,9 +15,12 @@ export default class extends Controller {
   }
 
   highlight(event) {
-    console.log("highlight called")
     const index = event.currentTarget.dataset.index
     this.colorStars(index)
+  }
+
+  select(event) {
+    this.colorStars(Number(event.currentTarget.value) - 1)
   }
 
   reset() {
@@ -42,4 +43,4 @@ export default class extends Controller {
       }
     })
   }
-} 
+}

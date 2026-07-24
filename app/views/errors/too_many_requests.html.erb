@@ -1,0 +1,11 @@
+<div class="mx-auto max-w-xl">
+  <section class="app-card p-6 text-center sm:p-10" aria-labelledby="rate-limit-title">
+    <p class="page-kicker">Service protégé</p>
+    <h1 id="rate-limit-title" class="page-title mt-3">Un peu de patience</h1>
+    <p class="page-subtitle mx-auto">
+      Plusieurs opérations coûteuses ont été lancées récemment. Réessayez dans
+      <%= pluralize([(@retry_after_seconds.to_i / 60.0).ceil, 1].max, "minute") %>.
+    </p>
+    <%= link_to "Revenir à l’accueil", root_path, class: "btn-primary mt-6" %>
+  </section>
+</div>

@@ -1,0 +1,88 @@
+<div class="mx-auto max-w-2xl space-y-6">
+  <div class="app-card p-5 sm:p-8">
+    <p class="page-kicker">Préférences</p>
+    <h1 class="page-title mt-2">Mon profil alimentaire</h1>
+    <p class="page-subtitle">Ces réglages pré-remplissent vos prochains plans et améliorent les suggestions.</p>
+  </div>
+
+  <div class="app-card p-5 sm:p-6">
+    <h2 class="text-xl font-black">Compte et foyer</h2>
+    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+      <%= link_to edit_user_registration_path, class: "btn-secondary w-full" do %>
+        Email et mot de passe
+      <% end %>
+      <%= link_to(current_user.in_household? ? household_path : edit_household_path, class: "btn-secondary w-full") do %>
+        <%= current_user.in_household? ? "Gérer mon foyer" : "Créer ou rejoindre un foyer" %>
+      <% end %>
+    </div>
+    <div class="mt-3 border-t border-slate-100 pt-3 dark:border-slate-800 sm:hidden">
+      <%= button_to "Se déconnecter", destroy_user_session_path, method: :delete, class: "btn-danger w-full" %>
+    </div>
+  </div>
+
+  <%= form_with(model: @user, url: profile_path, method: :patch, class: "space-y-6") do |f| %>
+    <% if @user.errors.any? %>
+      <div class="rounded-3xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900 dark:bg-red-950/40 dark:text-red-100" role="alert">
+        <h2 class="font-black">Vérifiez les informations saisies</h2>
+        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm">
+          <% @user.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="app-card p-5 sm:p-6">
+      <h2 class="text-xl font-black">Préférences du foyer</h2>
+      <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div>
+          <%= f.label :household_size, "Nombre de personnes", class: "form-label" %>
+          <%= f.number_field :household_size, min: 1, max: 20, required: true,
+              inputmode: "numeric",
+              class: "form-input mt-2" %>
+        </div>
+
+        <div>
+          <%= f.label :preferred_max_prep_time, "Préparation maximum (minutes)", class: "form-label" %>
+          <%= f.number_field :preferred_max_prep_time, min: 5, max: 1440, required: true,
+              inputmode: "numeric",
+              class: "form-input mt-2" %>
+        </div>
+      </div>
+    </div>
+
+    <fieldset class="app-card p-5 sm:p-6">
+      <legend class="px-1 text-xl font-black">Restrictions alimentaires</legend>
+      <p class="form-help mt-0">Laissez tout décoché si vous n’en avez pas.</p>
+      <div class="mt-5 grid gap-3 sm:grid-cols-2">
+        <% ApplicationHelper::DIETARY_RESTRICTION_LABELS.each do |restriction, label| %>
+          <label class="choice-card">
+            <%= check_box_tag "user[dietary_restrictions][]", restriction,
+                @user.dietary_restrictions&.include?(restriction),
+                id: "profile_restriction_#{restriction}" %>
+            <span><%= label %></span>
+          </label>
+        <% end %>
+      </div>
+    </fieldset>
+
+    <div class="app-card p-5 sm:p-6">
+      <h2 class="text-xl font-black">Ingrédients à éviter</h2>
+      <%= label_tag "user_excluded_ingredients_text", "Liste des ingrédients", class: "form-label mt-5" %>
+      <%= text_field_tag "user[excluded_ingredients_text]",
+          @user.excluded_ingredients&.join(", "),
+          class: "form-input mt-2",
+          aria: { describedby: "profile-excluded-help" },
+          placeholder: "Ex. fruits de mer, noix" %>
+      <p id="profile-excluded-help" class="form-help">Séparez les ingrédients par des virgules.</p>
+    </div>
+
+    <div class="mobile-sticky-actions" aria-label="Actions du profil">
+      <div class="mx-auto grid max-w-2xl grid-cols-[auto_1fr] gap-3 sm:flex sm:justify-end">
+        <%= link_to "Annuler", authenticated_root_path, class: "btn-secondary" %>
+        <%= f.submit "Enregistrer", class: "btn-primary w-full cursor-pointer sm:w-auto",
+            data: { turbo_submits_with: "Enregistrement…" } %>
+      </div>
+    </div>
+  <% end %>
+</div>

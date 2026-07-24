@@ -1,0 +1,51 @@
+<div class="auth-page">
+  <div class="auth-stack">
+    <div class="app-card p-6 text-center sm:p-8">
+      <p class="page-kicker">Retour en cuisine</p>
+      <h1 class="mt-2 text-3xl font-black tracking-tight text-slate-950 dark:text-white">Connexion</h1>
+      <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Accédez à vos plans, votre stock et vos listes de courses.</p>
+    </div>
+
+    <div class="app-card p-5 sm:p-8">
+      <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-5" }) do |f| %>
+        <div>
+          <%= f.label :email, "Adresse email", class: "form-label" %>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", required: true, placeholder: "vous@exemple.com", autocapitalize: "none", spellcheck: false,
+              class: "form-input mt-2" %>
+        </div>
+
+        <div>
+          <%= f.label :password, "Mot de passe", class: "form-label" %>
+          <%= f.password_field :password, autocomplete: "current-password", required: true, placeholder: "Votre mot de passe",
+              class: "form-input mt-2" %>
+        </div>
+
+        <% if devise_mapping.rememberable? %>
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <label class="flex min-h-11 items-center">
+              <%= f.check_box :remember_me, class: "h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 dark:border-slate-600" %>
+              <span class="ml-3 text-sm font-bold text-slate-600 dark:text-slate-300">Se souvenir de moi</span>
+            </label>
+            <% if devise_mapping.recoverable? && controller_name != 'passwords' %>
+              <%= link_to "Mot de passe oublié ?", new_password_path(resource_name),
+                  class: "auth-link text-sm" %>
+            <% end %>
+          </div>
+        <% end %>
+
+        <div>
+          <%= f.submit "Se connecter",
+              class: "btn-primary w-full cursor-pointer" %>
+        </div>
+      <% end %>
+
+      <div class="mt-6 text-center">
+        <p class="text-sm text-slate-600 dark:text-slate-300">
+          Pas encore de compte ?
+          <%= link_to "Inscrivez-vous", new_registration_path(resource_name),
+              class: "auth-link" %>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

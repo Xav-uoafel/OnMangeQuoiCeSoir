@@ -1,0 +1,41 @@
+<%= turbo_stream_from "pantry_scan_#{@pantry_scan.id}" %>
+
+<div class="mx-auto max-w-4xl space-y-6">
+  <div class="app-card p-5 sm:p-8">
+    <p class="page-kicker">Analyse photo</p>
+    <h1 class="page-title mt-2">Scan : <%= @pantry_scan.label.presence || "Sans nom" %></h1>
+    <p class="page-subtitle">Créé le <%= l @pantry_scan.created_at, format: :short %></p>
+  </div>
+
+  <%= render "workspace", scan: @pantry_scan %>
+
+  <% if @pantry_scan.photos.attached? %>
+    <section class="app-card p-4 sm:p-6" aria-labelledby="scan-photos-title">
+      <div class="flex items-center justify-between gap-3">
+        <h2 id="scan-photos-title" class="text-lg font-black">Photos analysées</h2>
+        <span class="pill"><%= @pantry_scan.photos.size %></span>
+      </div>
+      <div class="mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-3 sm:overflow-visible" tabindex="0" aria-label="Galerie des photos analysées">
+        <% @pantry_scan.photos.each_with_index do |photo, index| %>
+          <figure class="w-[78%] shrink-0 snap-center overflow-hidden rounded-2xl bg-slate-100 sm:w-auto dark:bg-slate-800">
+            <%= image_tag photo.variant(resize_to_fill: [640, 420]),
+                alt: "Photo #{index + 1} du scan #{@pantry_scan.label.presence || 'sans nom'}",
+                class: "aspect-[4/3] h-full w-full object-cover",
+                loading: "lazy" %>
+          </figure>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <div class="flex flex-wrap gap-3">
+    <% if @pantry_scan.pending_review? %>
+      <%= button_to "Ignorer ce scan", discard_pantry_scan_path(@pantry_scan),
+          method: :post,
+          class: "btn-danger",
+          data: { turbo_confirm: "Ignorer tous les ingrédients détectés ?" } %>
+    <% end %>
+    <%= link_to "Voir mon stock", pantry_items_path,
+        class: "btn-secondary" %>
+  </div>
+</div>

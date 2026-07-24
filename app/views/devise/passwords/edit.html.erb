@@ -1,0 +1,37 @@
+<div class="auth-page">
+  <div class="auth-stack">
+    <div class="app-card p-6 text-center sm:p-8">
+      <p class="page-kicker">Nouvel accès</p>
+      <h1 class="mt-2 text-3xl font-black tracking-tight text-slate-950 dark:text-white">Nouveau mot de passe</h1>
+      <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Choisissez un mot de passe robuste pour protéger vos menus.</p>
+    </div>
+
+    <div class="app-card p-5 sm:p-8">
+      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: "space-y-5" }) do |f| %>
+        <%= render "devise/shared/error_messages", resource: resource %>
+        <%= f.hidden_field :reset_password_token %>
+
+        <div>
+          <%= f.label :password, "Nouveau mot de passe", class: "form-label" %>
+          <% if @minimum_password_length %>
+            <p id="password-minimum" class="form-help"><%= @minimum_password_length %> caractères minimum</p>
+          <% end %>
+          <%= f.password_field :password, autofocus: true, autocomplete: "new-password", required: true, placeholder: "Votre nouveau mot de passe",
+              aria: (@minimum_password_length ? { describedby: "password-minimum" } : {}),
+              class: "form-input mt-2" %>
+        </div>
+
+        <div>
+          <%= f.label :password_confirmation, "Confirmer le mot de passe", class: "form-label" %>
+          <%= f.password_field :password_confirmation, autocomplete: "new-password", required: true, placeholder: "Confirmez votre mot de passe",
+              class: "form-input mt-2" %>
+        </div>
+
+        <div>
+          <%= f.submit "Changer le mot de passe",
+              class: "btn-primary w-full cursor-pointer" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

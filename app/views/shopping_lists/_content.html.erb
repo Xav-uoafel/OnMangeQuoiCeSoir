@@ -1,0 +1,153 @@
+<div id="shopping_list_content" class="space-y-6" role="status" aria-live="polite" aria-busy="<%= shopping_list.price_estimation_in_progress? %>">
+  <div class="grid grid-cols-3 gap-2 sm:gap-3">
+    <div class="app-card-muted p-3 sm:p-4">
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Articles</p>
+      <p class="mt-1 text-2xl font-black"><%= shopping_list.total_items_count %></p>
+    </div>
+    <div class="app-card-muted p-3 sm:p-4">
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Restants</p>
+      <p class="mt-1 text-2xl font-black"><%= shopping_list.remaining_items_count %></p>
+    </div>
+    <div class="app-card-muted p-3 sm:p-4">
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Catégories</p>
+      <p class="mt-1 text-2xl font-black"><%= items_by_category.keys.compact.size %></p>
+    </div>
+  </div>
+
+  <section class="relative overflow-hidden rounded-[2rem] border border-emerald-200 bg-gradient-to-br from-emerald-950 via-emerald-900 to-slate-950 p-5 text-white shadow-xl shadow-emerald-950/10 sm:p-7 dark:border-emerald-800" aria-labelledby="shopping-budget-title">
+    <div class="absolute -right-16 -top-20 h-52 w-52 rounded-full bg-lime-300/20 blur-3xl" aria-hidden="true"></div>
+    <div class="relative grid gap-5 sm:grid-cols-[1fr_auto] sm:items-start">
+      <div>
+        <div class="flex flex-wrap items-center gap-2">
+          <p class="text-xs font-black uppercase tracking-[0.2em] text-emerald-200">Budget estimé</p>
+          <% if shopping_list.price_estimation_in_progress? %>
+            <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-emerald-100">
+              <span class="h-2 w-2 animate-pulse rounded-full bg-lime-300" aria-hidden="true"></span>
+              Actualisation en cours
+            </span>
+          <% elsif shopping_list.price_estimation_failed? && shopping_list.estimated_total_cents.positive? %>
+            <span class="inline-flex items-center rounded-full bg-amber-300/20 px-3 py-1 text-xs font-bold text-amber-100">Dernière actualisation interrompue</span>
+          <% end %>
+        </div>
+
+        <% if shopping_list.estimated_total_cents.positive? %>
+          <h2 id="shopping-budget-title" class="mt-3 text-4xl font-black tracking-tight sm:text-5xl"><%= format_estimated_price(shopping_list.estimated_total_cents) %></h2>
+          <p class="mt-2 text-sm font-semibold text-emerald-100">
+            <%= format_estimated_price(shopping_list.remaining_total_cents) %> encore à acheter
+          </p>
+
+          <% if plan.weekly_budget? %>
+            <% difference = plan.weekly_budget_cents - shopping_list.estimated_total_cents %>
+            <% usage = (shopping_list.estimated_total_cents.to_f / plan.weekly_budget_cents * 100).round %>
+            <div class="mt-5 rounded-2xl border border-white/15 bg-white/10 p-4">
+              <div class="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-wide text-emerald-200">Objectif fixé</p>
+                  <p class="mt-1 text-xl font-black"><%= format_estimated_price(plan.weekly_budget_cents) %></p>
+                </div>
+                <p class="text-sm font-black <%= difference.negative? ? 'text-amber-200' : 'text-lime-200' %>">
+                  <%= difference.negative? ? "Dépassement de #{format_estimated_price(difference.abs)}" : "Marge de #{format_estimated_price(difference)}" %>
+                </p>
+              </div>
+              <div class="mt-3 h-2 overflow-hidden rounded-full bg-white/20" role="progressbar" aria-label="Utilisation du budget" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<%= [usage, 100].min %>">
+                <div class="h-full rounded-full <%= usage > 100 ? 'bg-amber-300' : 'bg-lime-300' %>" style="width: <%= [usage, 100].min %>%"></div>
+              </div>
+              <div class="mt-2 flex flex-wrap justify-between gap-2 text-xs font-semibold text-emerald-100">
+                <span><%= usage %>% du budget</span>
+                <% if plan.estimated_cost_per_meal_cents %>
+                  <span><%= format_estimated_price(plan.estimated_cost_per_meal_cents) %> en moyenne par repas</span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% elsif shopping_list.price_estimation_failed? %>
+          <h2 id="shopping-budget-title" class="mt-3 text-2xl font-black">Estimation indisponible</h2>
+          <p class="mt-2 text-sm text-emerald-100">Les articles restent utilisables et une nouvelle tentative peut être lancée.</p>
+        <% else %>
+          <h2 id="shopping-budget-title" class="mt-3 text-2xl font-black">Calcul du panier...</h2>
+          <p class="mt-2 text-sm text-emerald-100">Les prix apparaîtront automatiquement sans recharger la page.</p>
+        <% end %>
+
+        <% if shopping_list.priced_items_count.positive? %>
+          <div class="mt-5 flex flex-wrap gap-2 text-xs font-bold">
+            <span class="rounded-full bg-white/10 px-3 py-2"><%= shopping_list.price_coverage_percentage %>% des articles estimés</span>
+            <span class="rounded-full bg-white/10 px-3 py-2"><%= shopping_list.observed_price_percentage %>% issus de relevés récents</span>
+            <% if shopping_list.latest_price_observed_on %>
+              <span class="rounded-full bg-white/10 px-3 py-2">Référence au <%= l shopping_list.latest_price_observed_on, format: :short %></span>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <%= button_to "Actualiser les prix",
+          refresh_prices_plan_shopping_list_path(plan),
+          method: :post,
+          class: "inline-flex min-h-11 w-full items-center justify-center rounded-full border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white disabled:cursor-wait disabled:opacity-60 sm:w-auto",
+          disabled: shopping_list.price_estimation_in_progress?,
+          data: { turbo_submits_with: "Actualisation..." } %>
+    </div>
+
+    <p class="relative mt-5 border-t border-white/15 pt-4 text-xs leading-5 text-emerald-100/85">
+      Prix indicatifs pour la France, variables selon le magasin et les promotions.
+      Données ouvertes : <%= link_to "Open Prices / Open Food Facts", "https://prices.openfoodfacts.org", class: "font-black underline decoration-emerald-300 underline-offset-2", target: "_blank", rel: "noopener" %> (ODbL), complétées par un barème de référence.
+    </p>
+  </section>
+
+  <% if items_by_category.any? %>
+    <div class="grid gap-4">
+      <% items_by_category.each do |category, items| %>
+        <div class="app-card overflow-hidden">
+          <div class="flex items-center justify-between border-b border-slate-100 bg-white/60 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/60">
+            <h3 class="font-black text-slate-800 dark:text-slate-100"><%= ingredient_category_label(category || "autre") %></h3>
+            <span class="pill"><%= pluralize(items.size, "article") %></span>
+          </div>
+          <ul class="divide-y divide-slate-100 dark:divide-slate-800">
+            <% items.each do |item| %>
+              <li>
+                <%= form_with(model: item, url: plan_shopping_list_shopping_list_item_path(plan, item), method: :patch, class: "block", data: { controller: "auto-submit" }) do |f| %>
+                  <label class="grid min-h-16 cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 transition hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                    <%= f.check_box :checked, checked: item.checked,
+                        class: "h-6 w-6 shrink-0 rounded-lg border-slate-400 text-emerald-700 focus:ring-emerald-600 dark:border-slate-500",
+                        aria: { label: "Marquer #{item.name} comme #{item.checked ? 'non acheté' : 'acheté'}" },
+                        data: { action: "change->auto-submit#submit" } %>
+
+                    <span class="min-w-0">
+                      <span class="<%= 'line-through text-slate-400' if item.checked %> block truncate text-base font-bold text-slate-800 dark:text-slate-100"><%= item.name %></span>
+                      <span class="mt-1 flex flex-wrap items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                        <% if item.quantity_text.present? %>
+                          <span><%= item.quantity_text %></span>
+                        <% end %>
+                        <% if item.estimated_price_cents.present? %>
+                          <span aria-hidden="true">·</span>
+                          <span class="<%= item.observed_price? ? 'text-emerald-700 dark:text-emerald-300' : '' %>"><%= shopping_price_source_label(item) %></span>
+                        <% end %>
+                      </span>
+                    </span>
+
+                    <span class="min-w-[5.25rem] text-right">
+                      <% if item.estimated_price_cents.present? %>
+                        <span class="block text-base font-black text-slate-950 dark:text-white" aria-label="Prix estimé : <%= format_estimated_price(item.estimated_price_cents) %>"><%= format_estimated_price(item.estimated_price_cents) %></span>
+                        <% if shopping_unit_price_label(item) %>
+                          <span class="mt-0.5 block text-[0.7rem] font-semibold text-slate-500 dark:text-slate-400"><%= shopping_unit_price_label(item) %></span>
+                        <% end %>
+                      <% elsif shopping_list.price_estimation_in_progress? %>
+                        <span class="inline-block h-5 w-16 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" aria-label="Prix en cours d'estimation"></span>
+                      <% else %>
+                        <span class="text-xs font-semibold text-slate-400">Non estimé</span>
+                      <% end %>
+                    </span>
+                  </label>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty-state text-slate-600 dark:text-slate-300">
+      <p class="text-xl font-black text-slate-950 dark:text-white">La liste est vide</p>
+      <p class="mt-2 text-sm">Les ingrédients manquants apparaîtront ici après la génération du plan.</p>
+    </div>
+  <% end %>
+</div>

@@ -3,22 +3,29 @@ require "application_system_test_case"
 class RecipesTest < ApplicationSystemTestCase
   setup do
     @recipe = recipes(:one)
-    # Créer quelques reviews pour avoir une note moyenne
-    @recipe.reviews.create!(rating: 4, comment: "Très bonne recette", user: users(:two))
-    @recipe.reviews.create!(rating: 5, comment: "Excellente recette", user: users(:three))
   end
 
-  test "visiting the index" do
+  test "lists recipes with an accessible rating" do
     visit recipes_path
-    
+
     assert_selector "h1", text: "Toutes les recettes"
     assert_selector ".recipe", minimum: 1
-    
+
     within("#recipe_#{@recipe.id}") do
-      # Vérifie la présence des étoiles
-      assert_selector "svg", count: 5 # Il devrait y avoir 5 étoiles au total
-      assert_selector "svg.text-yellow-400", minimum: 1 # Au moins une étoile jaune
-      assert_selector "svg.text-gray-300", minimum: 1 # Au moins une étoile grise
+      assert_selector "[aria-label='Note moyenne : 4.0 sur 5']"
+      assert_selector "svg", count: 5
+      assert_selector "svg.text-yellow-300", count: 4
+      assert_selector "svg.text-gray-300", count: 1
     end
   end
-end 
+
+  test "filters the catalogue by title" do
+    visit recipes_path
+
+    fill_in "Rechercher une recette", with: "Tarte"
+    click_button "Rechercher"
+
+    assert_selector "#recipe_#{recipes(:one).id}"
+    assert_no_selector "#recipe_#{recipes(:two).id}"
+  end
+end

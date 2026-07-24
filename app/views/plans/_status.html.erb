@@ -1,0 +1,63 @@
+<% if plan.generation_stale? %>
+  <div class="rounded-3xl border border-amber-200 bg-amber-50 p-6 text-center dark:border-amber-900 dark:bg-amber-950/40">
+    <svg class="mx-auto mb-4 h-9 w-9 text-amber-700 dark:text-amber-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <h3 class="text-lg font-black text-amber-950 dark:text-amber-100">La génération semble bloquée</h3>
+    <p class="mt-2 text-sm text-amber-800 dark:text-amber-200">Votre configuration est conservée. Une nouvelle tentative remplacera proprement l'ancienne.</p>
+    <%= button_to "Relancer maintenant", generate_plan_path(plan), method: :post,
+        class: "btn-primary mt-4",
+        data: { turbo_submits_with: "Relance…" } %>
+  </div>
+<% elsif plan.generating? %>
+  <div class="app-card p-6 text-center">
+    <div class="mb-4 inline-block h-9 w-9 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent"></div>
+    <h3 class="text-lg font-black text-slate-950 dark:text-white">Génération en cours...</h3>
+    <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Vos recettes sont préparées avec vos contraintes et votre stock.</p>
+    <p class="mt-3 text-xs font-bold text-slate-500 dark:text-slate-400">Vous pouvez quitter cette page : le plan continuera à se préparer.</p>
+  </div>
+<% elsif plan.failed? %>
+  <div class="rounded-3xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-950/40">
+    <svg class="mx-auto mb-4 h-8 w-8 text-red-600 dark:text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+    </svg>
+    <h3 class="text-lg font-black text-red-900 dark:text-red-100">Erreur de génération</h3>
+    <p class="mt-2 text-sm text-red-700 dark:text-red-200"><%= plan.generation_error_message %></p>
+    <%= button_to "Réessayer", generate_plan_path(plan), method: :post,
+        class: "btn-danger mt-4",
+        data: { turbo_submits_with: "Nouvelle tentative…" } %>
+  </div>
+<% elsif plan.generated? %>
+  <div class="grid gap-4 sm:gap-6">
+    <div class="app-card-muted flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="font-black text-slate-950 dark:text-white">Une semaine qui reste flexible</p>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Verrouillez vos favoris, puis remplacez ou régénérez uniquement les autres repas.</p>
+      </div>
+      <% locked_count = plan.plan_recipes.where(locked: true).count %>
+      <span class="pill shrink-0"><%= pluralize(locked_count, "repas verrouillé") %></span>
+    </div>
+    <% plan_recipes_by_date = plan.plan_recipes.includes(:recipe).order(:scheduled_for, :meal_type).group_by(&:scheduled_for) %>
+    <% (plan.start_date..plan.end_date).each do |date| %>
+      <% day_recipes = plan_recipes_by_date.fetch(date, []) %>
+      <div class="app-card overflow-hidden">
+        <div class="flex items-center justify-between border-b border-slate-100 bg-white/50 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/60 sm:px-5">
+          <h3 class="text-base font-black sm:text-lg"><%= l date, format: :long %></h3>
+          <span class="pill"><%= pluralize(day_recipes.size, "repas") %></span>
+        </div>
+        <div class="divide-y divide-slate-100 dark:divide-slate-800">
+          <% day_recipes.each do |plan_recipe| %>
+            <%= render "plans/recipe", plan_recipe: plan_recipe %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="app-card p-6 text-center">
+    <h3 class="text-lg font-black text-slate-950 dark:text-white">Plan en brouillon</h3>
+    <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Lancez la génération pour obtenir vos recettes.</p>
+    <%= button_to "Générer les recettes", generate_plan_path(plan), method: :post,
+        class: "btn-primary mt-4" %>
+  </div>
+<% end %>

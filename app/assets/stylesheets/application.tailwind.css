@@ -1,3 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/*
+ * Legacy entry point kept for compatibility with older tooling.
+ * Tailwind 4 is compiled from app/assets/tailwind/application.css.
+ */
