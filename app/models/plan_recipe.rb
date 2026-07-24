@@ -1,4 +1,6 @@
 class PlanRecipe < ApplicationRecord
+  REPLACEMENT_STATUSES = %w[ready generating failed].freeze
+
   belongs_to :plan
   belongs_to :recipe
 
@@ -8,4 +10,13 @@ class PlanRecipe < ApplicationRecord
   
   validates :scheduled_for, presence: true
   validates :meal_type, presence: true
-end 
+  validates :replacement_status, inclusion: { in: REPLACEMENT_STATUSES }
+
+  def replacement_generating?
+    replacement_status == "generating"
+  end
+
+  def replacement_failed?
+    replacement_status == "failed"
+  end
+end

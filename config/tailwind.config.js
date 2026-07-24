@@ -9,7 +9,6 @@ module.exports = {
     extend: {},
   },
   plugins: [],
-  input: './app/assets/stylesheets/application.tailwind.css',
+  input: './app/assets/tailwind/application.css',
   output: './app/assets/builds/tailwind.css'
 } 
-

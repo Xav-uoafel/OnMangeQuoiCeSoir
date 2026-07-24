@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["icon"]
+  static targets = ["icon", "toggle"]
 
   connect() {
     this.applyTheme()
@@ -33,6 +33,13 @@ export default class extends Controller {
     if (!this.hasIconTarget) return
     const isDark = document.documentElement.classList.contains("dark")
     this.iconTarget.innerHTML = isDark ? this.sunIcon : this.moonIcon
+
+    if (this.hasToggleTarget) {
+      const label = isDark ? "Activer le thème clair" : "Activer le thème sombre"
+      this.toggleTarget.setAttribute("aria-label", label)
+      this.toggleTarget.setAttribute("title", label)
+      this.toggleTarget.setAttribute("aria-pressed", String(isDark))
+    }
   }
 
   get moonIcon() {

@@ -1,7 +1,7 @@
 fr:
   recipes:
     index:
-      title: "Liste des Recettes"
+      title: "Toutes les recettes"
       add_recipe: "Ajouter une Recette"
     show:
       title: "Détail de la recette"
@@ -11,12 +11,6 @@ fr:
     new:
       title: "Nouvelle Recette"
       back: "Retour à la liste"
-  actions:
-    confirm_delete: "Es-tu sûr de vouloir supprimer cette recette ?"
-  flash:
-    created: "Recette créée avec succès"
-    updated: "Recette mise à jour avec succès"
-    deleted: "Recette supprimée avec succès"
   reviews:
     new:
       title: "Ajouter un commentaire"
@@ -30,41 +24,31 @@ fr:
       content: "Commentaire"
       submit: "Mettre à jour le commentaire"
       back: "Retour à la recette"
-  flash:
-    review_created: "Commentaire ajouté avec succès"
-    review_updated: "Commentaire modifié avec succès"
-    review_deleted: "Commentaire supprimé avec succès"
-  activerecord:
-    errors:
-      models:
-        recipe:
-          attributes:
-            title:
-              blank: "Le titre est obligatoire"
-              too_short: "Le titre doit faire au moins %{count} caractères"
-            servings:
-              not_a_number: "Le nombre de portions doit être un nombre"
-              greater_than: "Le nombre de portions doit être supérieur à 0"
-            difficulty:
-              inclusion: "Le niveau de difficulté doit être Facile, Intermédiaire ou Difficile"
-        review:
-          attributes:
-            rating:
-              blank: "doit être rempli(e)"
-              inclusion: "doit être entre 1 et 5"
-              not_a_number: "doit être un nombre"
-            comment:
-              blank: "Le commentaire ne peut pas être vide"
-              too_short: "doit faire au moins %{count} caractères"
-              too_long: "ne doit pas dépasser %{count} caractères"
-      messages:
-        blank: "doit être rempli(e)"
-        inclusion: "n'est pas inclus(e) dans la liste"
-        record_invalid: "La validation a échoué : %{errors}"
-  reviews:
+    form:
+      title: "Ajouter un commentaire"
+      rating_label: "Note (sur 5)"
+      comment_label: "Votre commentaire"
+      placeholder: "Partagez votre expérience avec cette recette..."
+      submit: "Publier le commentaire"
+    actions:
+      edit: "Modifier"
+      delete: "Supprimer"
+      confirm_delete: "Êtes-vous sûr de vouloir supprimer ce commentaire ?"
     errors:
       own_recipe: "Vous ne pouvez pas commenter votre propre recette"
       already_reviewed: "Vous avez déjà commenté cette recette"
+  actions:
+    confirm_delete: "Es-tu sûr de vouloir supprimer cette recette ?"
+  flash:
+    recipe_created: "Recette créée avec succès"
+    recipe_updated: "Recette mise à jour avec succès"
+    recipe_deleted: "Recette supprimée avec succès"
+    created: "Recette créée avec succès"
+    updated: "Recette mise à jour avec succès"
+    deleted: "Recette supprimée avec succès"
+    review_created: "Commentaire ajouté avec succès"
+    review_updated: "Commentaire modifié avec succès"
+    review_deleted: "Commentaire supprimé avec succès"
   devise:
     sessions:
       signed_in: "Connexion réussie."
@@ -102,8 +86,33 @@ fr:
       success: "Authentification réussie avec %{kind}."
       failure: "L'authentification avec %{kind} a échoué : \"%{reason}\"."
   activerecord:
+    attributes:
+      plan:
+        start_date: "La date de début"
+        end_date: "La date de fin"
+        constraints: "Les préférences"
     errors:
       models:
+        recipe:
+          attributes:
+            title:
+              blank: "Le titre est obligatoire"
+              too_short: "Le titre doit faire au moins %{count} caractères"
+            servings:
+              not_a_number: "Le nombre de portions doit être un nombre"
+              greater_than: "Le nombre de portions doit être supérieur à 0"
+            difficulty:
+              inclusion: "Le niveau de difficulté doit être Facile, Intermédiaire ou Difficile"
+        review:
+          attributes:
+            rating:
+              blank: "doit être rempli(e)"
+              inclusion: "doit être entre 1 et 5"
+              not_a_number: "doit être un nombre"
+            comment:
+              blank: "Le commentaire ne peut pas être vide"
+              too_short: "doit faire au moins %{count} caractères"
+              too_long: "ne doit pas dépasser %{count} caractères"
         user:
           attributes:
             email:
@@ -115,17 +124,10 @@ fr:
               too_short: "Le mot de passe est trop court (minimum %{count} caractères)"
             password_confirmation:
               confirmation: "Le mot de passe et sa confirmation ne correspondent pas"
-  reviews:
-    form:
-      title: "Ajouter un commentaire"
-      rating_label: "Note (sur 5)"
-      comment_label: "Votre commentaire"
-      placeholder: "Partagez votre expérience avec cette recette..."
-      submit: "Publier le commentaire"
-    actions:
-      edit: "Modifier"
-      delete: "Supprimer"
-      confirm_delete: "Êtes-vous sûr de vouloir supprimer ce commentaire ?"
+      messages:
+        blank: "doit être rempli(e)"
+        inclusion: "n'est pas inclus(e) dans la liste"
+        record_invalid: "La validation a échoué : %{errors}"
   time:
     formats:
       long: "%d %B %Y à %H:%M"

@@ -1,4 +1,6 @@
-require:
+inherit_from: .rubocop_todo.yml
+
+plugins:
   - rubocop-rails
 
 AllCops:
@@ -18,6 +20,9 @@ Style/Documentation:
 
 Style/FrozenStringLiteralComment:
   Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
 
 Metrics/MethodLength:
   Max: 20

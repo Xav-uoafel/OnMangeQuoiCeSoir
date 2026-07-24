@@ -1,36 +1,41 @@
 <%= turbo_stream_from "pantry_scan_#{@pantry_scan.id}" %>
 
-<div class="max-w-4xl mx-auto py-8 px-4">
-  <h1 class="text-3xl font-bold mb-2">Scan : <%= @pantry_scan.label || "Sans nom" %></h1>
-  <p class="text-gray-500 dark:text-gray-400 mb-6">Cree le <%= l @pantry_scan.created_at, format: :short %></p>
-
-  <div id="scan_status">
-    <%= render 'status', scan: @pantry_scan %>
+<div class="mx-auto max-w-4xl space-y-6">
+  <div class="app-card p-5 sm:p-8">
+    <p class="page-kicker">Analyse photo</p>
+    <h1 class="page-title mt-2">Scan : <%= @pantry_scan.label.presence || "Sans nom" %></h1>
+    <p class="page-subtitle">Créé le <%= l @pantry_scan.created_at, format: :short %></p>
   </div>
 
-  <% if @pantry_scan.completed? && @detected_items.any? %>
-    <div class="mt-6 bg-white dark:bg-gray-800 shadow dark:shadow-gray-900/50 rounded-lg overflow-hidden">
-      <div class="bg-gray-50 dark:bg-gray-800 px-4 py-2">
-        <h3 class="font-semibold"><%= @detected_items.size %> ingredients detectes</h3>
+  <%= render "workspace", scan: @pantry_scan %>
+
+  <% if @pantry_scan.photos.attached? %>
+    <section class="app-card p-4 sm:p-6" aria-labelledby="scan-photos-title">
+      <div class="flex items-center justify-between gap-3">
+        <h2 id="scan-photos-title" class="text-lg font-black">Photos analysées</h2>
+        <span class="pill"><%= @pantry_scan.photos.size %></span>
       </div>
-      <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-        <% @detected_items.each do |item| %>
-          <li class="px-4 py-3 flex justify-between">
-            <div>
-              <span class="font-medium"><%= item.name %></span>
-              <span class="text-gray-500 dark:text-gray-400 text-sm ml-2"><%= item.category&.humanize %></span>
-              <% if item.quantity_text.present? %>
-                <span class="text-gray-400 text-sm ml-2">- <%= item.quantity_text %></span>
-              <% end %>
-            </div>
-          </li>
+      <div class="mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-3 sm:overflow-visible" tabindex="0" aria-label="Galerie des photos analysées">
+        <% @pantry_scan.photos.each_with_index do |photo, index| %>
+          <figure class="w-[78%] shrink-0 snap-center overflow-hidden rounded-2xl bg-slate-100 sm:w-auto dark:bg-slate-800">
+            <%= image_tag photo.variant(resize_to_fill: [640, 420]),
+                alt: "Photo #{index + 1} du scan #{@pantry_scan.label.presence || 'sans nom'}",
+                class: "aspect-[4/3] h-full w-full object-cover",
+                loading: "lazy" %>
+          </figure>
         <% end %>
-      </ul>
-    </div>
+      </div>
+    </section>
   <% end %>
 
-  <div class="mt-6">
+  <div class="flex flex-wrap gap-3">
+    <% if @pantry_scan.pending_review? %>
+      <%= button_to "Ignorer ce scan", discard_pantry_scan_path(@pantry_scan),
+          method: :post,
+          class: "btn-danger",
+          data: { turbo_confirm: "Ignorer tous les ingrédients détectés ?" } %>
+    <% end %>
     <%= link_to "Voir mon stock", pantry_items_path,
-        class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
+        class: "btn-secondary" %>
   </div>
 </div>

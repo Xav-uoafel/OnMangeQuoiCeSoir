@@ -21,9 +21,9 @@ class HouseholdsController < ApplicationController
 
     if @household.save
       current_user.update!(household: @household, household_role: 'admin')
-      redirect_to household_path, notice: "Foyer cree ! Code d'invitation : #{@household.invite_code}"
+      redirect_to household_path, notice: "Foyer créé ! Code d’invitation : #{@household.invite_code}"
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 
@@ -36,9 +36,9 @@ class HouseholdsController < ApplicationController
     end
 
     if @household.update(household_params)
-      redirect_to household_path, notice: 'Foyer mis a jour.'
+      redirect_to household_path, notice: 'Foyer mis à jour.'
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

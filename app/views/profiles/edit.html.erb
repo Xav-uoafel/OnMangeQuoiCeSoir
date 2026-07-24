@@ -1,51 +1,88 @@
-<div class="max-w-2xl mx-auto py-8 px-4">
-  <h1 class="text-3xl font-bold mb-8">Mon profil alimentaire</h1>
+<div class="mx-auto max-w-2xl space-y-6">
+  <div class="app-card p-5 sm:p-8">
+    <p class="page-kicker">Préférences</p>
+    <h1 class="page-title mt-2">Mon profil alimentaire</h1>
+    <p class="page-subtitle">Ces réglages pré-remplissent vos prochains plans et améliorent les suggestions.</p>
+  </div>
+
+  <div class="app-card p-5 sm:p-6">
+    <h2 class="text-xl font-black">Compte et foyer</h2>
+    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+      <%= link_to edit_user_registration_path, class: "btn-secondary w-full" do %>
+        Email et mot de passe
+      <% end %>
+      <%= link_to(current_user.in_household? ? household_path : edit_household_path, class: "btn-secondary w-full") do %>
+        <%= current_user.in_household? ? "Gérer mon foyer" : "Créer ou rejoindre un foyer" %>
+      <% end %>
+    </div>
+    <div class="mt-3 border-t border-slate-100 pt-3 dark:border-slate-800 sm:hidden">
+      <%= button_to "Se déconnecter", destroy_user_session_path, method: :delete, class: "btn-danger w-full" %>
+    </div>
+  </div>
 
   <%= form_with(model: @user, url: profile_path, method: :patch, class: "space-y-6") do |f| %>
-    <div class="bg-white dark:bg-gray-800 shadow dark:shadow-gray-900/50 rounded-lg p-6">
-      <h2 class="text-xl font-semibold mb-4">Preferences</h2>
+    <% if @user.errors.any? %>
+      <div class="rounded-3xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900 dark:bg-red-950/40 dark:text-red-100" role="alert">
+        <h2 class="font-black">Vérifiez les informations saisies</h2>
+        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm">
+          <% @user.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+    <div class="app-card p-5 sm:p-6">
+      <h2 class="text-xl font-black">Préférences du foyer</h2>
+      <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div>
-          <%= f.label :household_size, "Nombre de personnes", class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
-          <%= f.number_field :household_size, min: 1, max: 20,
-              class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          <%= f.label :household_size, "Nombre de personnes", class: "form-label" %>
+          <%= f.number_field :household_size, min: 1, max: 20, required: true,
+              inputmode: "numeric",
+              class: "form-input mt-2" %>
         </div>
 
         <div>
-          <%= f.label :preferred_max_prep_time, "Temps de prep. max (min)", class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
-          <%= f.number_field :preferred_max_prep_time, min: 5,
-              class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          <%= f.label :preferred_max_prep_time, "Préparation maximum (minutes)", class: "form-label" %>
+          <%= f.number_field :preferred_max_prep_time, min: 5, max: 1440, required: true,
+              inputmode: "numeric",
+              class: "form-input mt-2" %>
         </div>
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 shadow dark:shadow-gray-900/50 rounded-lg p-6">
-      <h2 class="text-xl font-semibold mb-4">Restrictions alimentaires</h2>
-      <div class="space-y-3">
-        <% %w[vegetarien vegetalien sans_gluten sans_lactose halal casher].each do |restriction| %>
-          <div class="flex items-center">
+    <fieldset class="app-card p-5 sm:p-6">
+      <legend class="px-1 text-xl font-black">Restrictions alimentaires</legend>
+      <p class="form-help mt-0">Laissez tout décoché si vous n’en avez pas.</p>
+      <div class="mt-5 grid gap-3 sm:grid-cols-2">
+        <% ApplicationHelper::DIETARY_RESTRICTION_LABELS.each do |restriction, label| %>
+          <label class="choice-card">
             <%= check_box_tag "user[dietary_restrictions][]", restriction,
                 @user.dietary_restrictions&.include?(restriction),
-                id: "profile_restriction_#{restriction}",
-                class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600 rounded" %>
-            <%= label_tag "profile_restriction_#{restriction}", restriction.humanize, class: "ml-2 text-sm text-gray-700 dark:text-gray-300" %>
-          </div>
+                id: "profile_restriction_#{restriction}" %>
+            <span><%= label %></span>
+          </label>
         <% end %>
       </div>
-    </div>
+    </fieldset>
 
-    <div class="bg-white dark:bg-gray-800 shadow dark:shadow-gray-900/50 rounded-lg p-6">
-      <h2 class="text-xl font-semibold mb-4">Ingredients a eviter</h2>
+    <div class="app-card p-5 sm:p-6">
+      <h2 class="text-xl font-black">Ingrédients à éviter</h2>
+      <%= label_tag "user_excluded_ingredients_text", "Liste des ingrédients", class: "form-label mt-5" %>
       <%= text_field_tag "user[excluded_ingredients_text]",
           @user.excluded_ingredients&.join(", "),
-          class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
-          placeholder: "Separes par des virgules" %>
+          class: "form-input mt-2",
+          aria: { describedby: "profile-excluded-help" },
+          placeholder: "Ex. fruits de mer, noix" %>
+      <p id="profile-excluded-help" class="form-help">Séparez les ingrédients par des virgules.</p>
     </div>
 
-    <div class="flex justify-between">
-      <%= link_to "Retour", authenticated_root_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700" %>
-      <%= f.submit "Enregistrer", class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
+    <div class="mobile-sticky-actions" aria-label="Actions du profil">
+      <div class="mx-auto grid max-w-2xl grid-cols-[auto_1fr] gap-3 sm:flex sm:justify-end">
+        <%= link_to "Annuler", authenticated_root_path, class: "btn-secondary" %>
+        <%= f.submit "Enregistrer", class: "btn-primary w-full cursor-pointer sm:w-auto",
+            data: { turbo_submits_with: "Enregistrement…" } %>
+      </div>
     </div>
   <% end %>
 </div>

@@ -9,9 +9,9 @@ class ProfilesController < ApplicationController
     @user = current_user
 
     if @user.update(profile_params)
-      redirect_to authenticated_root_path, notice: 'Profil mis a jour avec succes !'
+      redirect_to authenticated_root_path, notice: 'Profil mis à jour avec succès !'
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

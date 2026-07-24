@@ -1,5 +1,6 @@
 class PantryItem < ApplicationRecord
   belongs_to :user
+  belongs_to :pantry_scan, optional: true
 
   CATEGORIES = %w[legume fruit viande poisson produit_laitier epicerie condiment boisson autre].freeze
 

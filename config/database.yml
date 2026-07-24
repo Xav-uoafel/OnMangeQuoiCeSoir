@@ -13,10 +13,10 @@ development:
 
 test:
   <<: *default
-  database: onmangequoicesoir_test
+  database: <%= ENV.fetch("TEST_DATABASE_NAME", "onmangequoicesoir_test") %>
   port: <%= ENV.fetch("TEST_DATABASE_PORT") { ENV.fetch("DATABASE_PORT", 5455) } %>
 
 production:
   <<: *default
-  database: onmangequoicesoir_prod
+  database: <%= ENV.fetch("DATABASE_NAME", "onmangequoicesoir_prod") %>
   port: <%= ENV.fetch("DATABASE_PORT", 5432) %>

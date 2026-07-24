@@ -1,35 +1,68 @@
-<div class="container mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold mb-8">Toutes les recettes</h1>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-    <% @recipes.each do |recipe| %>
-      <%= link_to recipe_path(recipe), class: "block transition hover:scale-105", id: "recipe_#{recipe.id}" do %>
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50 p-6 mb-8 h-full hover:shadow-xl transition-all duration-200">
-          <h2 class="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">
-            <%= recipe.title %>
-          </h2>
-
-          <div class="flex items-center gap-2 mb-4">
-            <%= rating_stars(recipe.average_rating || 0) %>
-            <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">
-              (<%= pluralize(recipe.total_reviews, 'avis') %>)
-            </span>
-          </div>
-
-          <p class="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
-            <%= recipe.description %>
-          </p>
-
-          <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400 mt-auto">
-            <span class="bg-gray-100 dark:bg-gray-900 px-3 py-1 rounded-full">
-              <%= recipe.difficulty %>
-            </span>
-            <span class="bg-gray-100 dark:bg-gray-900 px-3 py-1 rounded-full">
-              <%= recipe.preparation_time + recipe.cooking_time %> min
-            </span>
-          </div>
-        </div>
+<div class="space-y-6">
+  <div class="app-card p-5 sm:p-8">
+    <div class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="page-kicker">Catalogue</p>
+        <h1 class="page-title mt-2"><%= t("recipes.index.title") %></h1>
+        <p class="page-subtitle">Retrouvez rapidement une recette adaptée au temps et à l’énergie du moment.</p>
+      </div>
+      <% if user_signed_in? %>
+        <%= link_to "Ajouter une recette", new_recipe_path, class: "btn-primary w-full sm:w-auto" %>
       <% end %>
-    <% end %>
+    </div>
   </div>
+
+  <%= form_with(url: recipes_path, method: :get, class: "app-card grid gap-4 p-4 sm:grid-cols-[1fr_12rem_auto] sm:items-end sm:p-5", role: "search") do |form| %>
+    <div>
+      <%= form.label :search, "Rechercher une recette", class: "form-label" %>
+      <%= form.search_field :search, value: params[:search], placeholder: "Ex. curry, tarte…", autocomplete: "off", class: "form-input mt-2" %>
+    </div>
+    <div>
+      <%= form.label :difficulty, "Difficulté", class: "form-label" %>
+      <%= form.select :difficulty, options_for_select(%w[Facile Intermédiaire Difficile], params[:difficulty]), { include_blank: "Toutes" }, class: "form-input mt-2" %>
+    </div>
+    <div class="grid grid-cols-2 gap-3 sm:flex">
+      <% if params[:search].present? || params[:difficulty].present? %>
+        <%= link_to "Effacer", recipes_path, class: "btn-secondary" %>
+      <% end %>
+      <%= form.submit "Rechercher", class: "btn-primary w-full cursor-pointer" %>
+    </div>
+  <% end %>
+
+  <% if @recipes.any? %>
+    <section aria-labelledby="recipes-results-title">
+      <h2 id="recipes-results-title" class="sr-only">Résultats de recherche</h2>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <% @recipes.each do |recipe| %>
+          <%= link_to recipe_path(recipe), class: "group block rounded-3xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--omq-tomato)]", id: "recipe_#{recipe.id}", aria: { label: "Voir la recette #{recipe.title}" } do %>
+            <article class="recipe app-card flex h-full flex-col p-5 transition group-hover:-translate-y-1 group-hover:shadow-lg sm:p-6">
+              <div class="mb-5 h-2 w-14 rounded-full bg-[#e84f35]" aria-hidden="true"></div>
+              <h3 class="da-section-title text-2xl font-black leading-tight text-slate-950 dark:text-white"><%= recipe.title %></h3>
+
+              <div class="mt-3 flex flex-wrap items-center gap-2" aria-label="Note moyenne : <%= recipe.average_rating %> sur 5">
+                <%= rating_stars(recipe.average_rating || 0) %>
+                <span class="text-sm font-bold text-slate-500 dark:text-slate-400">(<%= pluralize(recipe.total_reviews, "avis") %>)</span>
+              </div>
+
+              <p class="mt-4 line-clamp-3 text-sm leading-6 text-slate-600 dark:text-slate-300"><%= recipe.description %></p>
+
+              <div class="mt-auto flex flex-wrap gap-2 pt-5">
+                <span class="pill"><%= recipe.difficulty %></span>
+                <span class="pill"><%= recipe.preparation_time + recipe.cooking_time %> min</span>
+                <% if recipe.seasonal_score.positive? %>
+                  <span class="pill"><%= recipe.seasonal_score %>% saison</span>
+                <% end %>
+              </div>
+            </article>
+          <% end %>
+        <% end %>
+      </div>
+    </section>
+  <% else %>
+    <div class="empty-state">
+      <p class="text-2xl font-black text-slate-950 dark:text-white">Aucune recette trouvée</p>
+      <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-300">Essayez un terme plus court ou retirez le filtre de difficulté.</p>
+      <%= link_to "Voir toutes les recettes", recipes_path, class: "btn-secondary mt-6 w-full sm:w-auto" %>
+    </div>
+  <% end %>
 </div>

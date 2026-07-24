@@ -1,50 +1,36 @@
-<div class="max-w-2xl mx-auto py-8 px-4">
-  <div class="flex justify-between items-center mb-8">
-    <div>
-      <h1 class="text-3xl font-bold">Liste de courses</h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-1">
+<%= turbo_stream_from "shopping_list_#{@shopping_list.id}" %>
+
+<div class="mx-auto max-w-3xl space-y-6">
+  <div class="app-card p-5 sm:p-8">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="page-kicker">En magasin</p>
+        <h1 class="page-title mt-2">Liste de courses</h1>
+        <p class="page-subtitle">
         Plan du <%= l @plan.start_date, format: :short %> au <%= l @plan.end_date, format: :short %>
       </p>
     </div>
-    <div class="text-right">
-      <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400"><%= @shopping_list.progress_percentage %>%%</div>
-      <div class="text-sm text-gray-500 dark:text-gray-400">complete</div>
+      <div class="w-full rounded-3xl bg-slate-950 px-5 py-4 text-white sm:w-48 dark:bg-emerald-400 dark:text-slate-950" aria-label="Progression de la liste de courses">
+        <div class="flex items-end justify-between gap-3">
+          <span class="text-sm font-bold opacity-80">Progression</span>
+          <span class="text-3xl font-black"><%= @shopping_list.progress_percentage %>%</span>
+        </div>
+        <progress class="shopping-progress" value="<%= @shopping_list.progress_percentage %>" max="100"><%= @shopping_list.progress_percentage %>%</progress>
+      </div>
     </div>
   </div>
 
-  <% if @items_by_category.any? %>
-    <% @items_by_category.each do |category, items| %>
-      <div class="bg-white dark:bg-gray-800 shadow dark:shadow-gray-900/50 rounded-lg mb-4 overflow-hidden">
-        <div class="bg-gray-50 dark:bg-gray-800 px-4 py-2">
-          <h3 class="font-semibold text-gray-700 dark:text-gray-300"><%= (category || "autre").humanize %></h3>
-        </div>
-        <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-          <% items.each do |item| %>
-            <li class="px-4 py-3 flex items-center gap-3">
-              <%= form_with(model: item, url: "#", method: :patch, class: "inline") do |f| %>
-                <%= f.check_box :checked, checked: item.checked,
-                    class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600 rounded",
-                    onchange: "this.form.requestSubmit()" %>
-              <% end %>
-              <span class="<%= 'line-through text-gray-400' if item.checked %> flex-1">
-                <%= item.name %>
-              </span>
-              <% if item.quantity_text.present? %>
-                <span class="text-sm text-gray-500 dark:text-gray-400"><%= item.quantity_text %></span>
-              <% end %>
-            </li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
-  <% else %>
-    <div class="text-center py-12 text-gray-500 dark:text-gray-400">
-      <p>Aucun ingredient dans la liste de courses.</p>
-    </div>
-  <% end %>
+  <%= render "shopping_lists/content",
+      plan: @plan,
+      shopping_list: @shopping_list,
+      items_by_category: @items_by_category %>
 
-  <div class="mt-6">
+  <div class="mobile-sticky-actions">
+    <div class="mx-auto grid max-w-3xl grid-cols-2 gap-3">
     <%= link_to "Retour au plan", @plan,
-        class: "inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700" %>
+        class: "btn-secondary w-full" %>
+    <%= link_to "Voir mon stock", pantry_items_path,
+        class: "btn-primary w-full" %>
+    </div>
   </div>
 </div>

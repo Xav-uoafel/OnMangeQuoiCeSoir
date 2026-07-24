@@ -1,30 +1,55 @@
-<div class="max-w-7xl mx-auto py-8 px-4">
-  <div class="flex justify-between items-center mb-8">
-    <h1 class="text-3xl font-bold">Mes plans de repas</h1>
-    <%= link_to "Nouveau plan", new_plan_path,
-        class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
+<div class="space-y-6">
+  <div class="app-card p-5 sm:p-8">
+    <div class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="page-kicker">Menus</p>
+        <h1 class="page-title mt-2">Mes plans de repas</h1>
+        <p class="page-subtitle">Retrouvez vos semaines passées et préparez la prochaine.</p>
+      </div>
+      <%= link_to "Créer un plan", new_plan_path, class: "btn-primary w-full sm:w-auto" %>
+    </div>
   </div>
 
-  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-    <% @plans.each do |plan| %>
-      <%= link_to plan_path(plan), class: "block" do %>
-        <div class="bg-white dark:bg-gray-800 shadow dark:shadow-gray-900/50 rounded-lg p-6 hover:shadow-lg transition-shadow duration-200">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">
-                Du <%= l plan.start_date, format: :long %><br>
-                au <%= l plan.end_date, format: :long %>
-              </p>
-              <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                <%= pluralize(plan.recipes.count, 'recette') %>
-              </p>
-            </div>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= plan.status == 'draft' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' %>">
-              <%= plan.status == 'draft' ? 'Brouillon' : 'Généré' %>
-            </span>
-          </div>
-        </div>
-      <% end %>
-    <% end %>
-  </div>
+  <% if @plans.any? %>
+    <section aria-labelledby="plans-list-title">
+      <h2 id="plans-list-title" class="sr-only">Historique des plans</h2>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <% @plans.each do |plan| %>
+          <%= link_to plan_path(plan), class: "group block rounded-3xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--omq-tomato)]", aria: { label: "Ouvrir le plan du #{l(plan.start_date, format: :long)}" } do %>
+            <article class="app-card h-full p-5 transition group-hover:-translate-y-1 group-hover:shadow-lg sm:p-6">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Semaine du</p>
+                  <h3 class="mt-1 text-xl font-black text-slate-950 dark:text-white"><%= l plan.start_date, format: :long %></h3>
+                </div>
+                <% status_label, status_classes =
+                     if plan.generation_stale?
+                       ["Bloqué", "bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-200"]
+                     else
+                       case plan.status
+                       when "generated" then ["Prêt", "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200"]
+                       when "generating" then ["En cours", "bg-amber-100 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200"]
+                       when "failed" then ["À relancer", "bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-200"]
+                       else ["Brouillon", "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"]
+                       end
+                     end %>
+                <span class="shrink-0 rounded-full px-3 py-1 text-xs font-black <%= status_classes %>"><%= status_label %></span>
+              </div>
+
+              <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-4 text-sm dark:border-slate-800">
+                <span class="font-bold text-slate-600 dark:text-slate-300"><%= pluralize(plan.recipes.size, "recette") %></span>
+                <span class="font-black text-emerald-800 group-hover:text-emerald-950 dark:text-emerald-300">Ouvrir <span aria-hidden="true">→</span></span>
+              </div>
+            </article>
+          <% end %>
+        <% end %>
+      </div>
+    </section>
+  <% else %>
+    <div class="empty-state">
+      <p class="text-2xl font-black text-slate-950 dark:text-white">Aucun plan pour le moment</p>
+      <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-300">Créez votre première semaine en choisissant les repas et le temps dont vous disposez.</p>
+      <%= link_to "Préparer ma semaine", new_plan_path, class: "btn-primary mt-6 w-full sm:w-auto" %>
+    </div>
+  <% end %>
 </div>

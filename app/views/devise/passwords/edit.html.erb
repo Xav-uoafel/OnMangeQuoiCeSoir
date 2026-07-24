@@ -1,30 +1,35 @@
-<div class="min-h-[80vh] flex items-center justify-center px-4">
-  <div class="w-full max-w-md">
-    <div class="bg-white dark:bg-gray-800 shadow-xl dark:shadow-gray-900/50 rounded-2xl p-8">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Nouveau mot de passe</h2>
+<div class="auth-page">
+  <div class="auth-stack">
+    <div class="app-card p-6 text-center sm:p-8">
+      <p class="page-kicker">Nouvel accès</p>
+      <h1 class="mt-2 text-3xl font-black tracking-tight text-slate-950 dark:text-white">Nouveau mot de passe</h1>
+      <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Choisissez un mot de passe robuste pour protéger vos menus.</p>
+    </div>
 
-      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }, class: "space-y-5") do |f| %>
+    <div class="app-card p-5 sm:p-8">
+      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: "space-y-5" }) do |f| %>
         <%= render "devise/shared/error_messages", resource: resource %>
         <%= f.hidden_field :reset_password_token %>
 
         <div>
-          <%= f.label :password, "Nouveau mot de passe", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+          <%= f.label :password, "Nouveau mot de passe", class: "form-label" %>
           <% if @minimum_password_length %>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1"><%= @minimum_password_length %> caracteres minimum</p>
+            <p id="password-minimum" class="form-help"><%= @minimum_password_length %> caractères minimum</p>
           <% end %>
-          <%= f.password_field :password, autofocus: true, autocomplete: "new-password", placeholder: "••••••••",
-              class: "block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors" %>
+          <%= f.password_field :password, autofocus: true, autocomplete: "new-password", required: true, placeholder: "Votre nouveau mot de passe",
+              aria: (@minimum_password_length ? { describedby: "password-minimum" } : {}),
+              class: "form-input mt-2" %>
         </div>
 
         <div>
-          <%= f.label :password_confirmation, "Confirmer le mot de passe", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
-          <%= f.password_field :password_confirmation, autocomplete: "new-password", placeholder: "••••••••",
-              class: "block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors" %>
+          <%= f.label :password_confirmation, "Confirmer le mot de passe", class: "form-label" %>
+          <%= f.password_field :password_confirmation, autocomplete: "new-password", required: true, placeholder: "Confirmez votre mot de passe",
+              class: "form-input mt-2" %>
         </div>
 
         <div>
           <%= f.submit "Changer le mot de passe",
-              class: "w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-colors cursor-pointer" %>
+              class: "btn-primary w-full cursor-pointer" %>
         </div>
       <% end %>
     </div>

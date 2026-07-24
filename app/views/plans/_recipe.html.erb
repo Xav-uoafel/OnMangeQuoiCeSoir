@@ -1,55 +1,96 @@
-<div class="p-4 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
-  <div class="flex justify-between items-start mb-3">
-    <div>
-      <h4 class="font-medium text-gray-900 dark:text-gray-100"><%= plan_recipe.meal_type %></h4>
-      <p class="mt-1 text-lg font-semibold"><%= plan_recipe.recipe.title %></p>
+<article id="<%= dom_id(plan_recipe) %>" class="relative" aria-busy="<%= plan_recipe.replacement_generating? %>">
+  <% if plan_recipe.replacement_generating? %>
+    <div class="flex min-h-52 flex-col items-center justify-center p-6 text-center sm:p-8" role="status" aria-live="polite">
+      <div class="h-9 w-9 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" aria-hidden="true"></div>
+      <h4 class="mt-4 text-lg font-black text-slate-950 dark:text-white">Nouvelle idée en préparation</h4>
+      <p class="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-300">Nous remplaçons <span class="font-bold"><%= plan_recipe.recipe.title %></span> sans toucher aux autres repas.</p>
     </div>
+  <% else %>
+    <% recipe = plan_recipe.recipe %>
+    <% estimated_cost_cents = recipe_cost_estimate_cents(recipe) %>
+    <div class="p-4 sm:p-5">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="pill"><%= plan_recipe.meal_type %></span>
+            <% if plan_recipe.locked? %>
+              <span class="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-900 dark:bg-amber-950/60 dark:text-amber-200">Verrouillé</span>
+            <% end %>
+          </div>
+          <h4 class="mt-2 text-xl font-black leading-tight text-slate-950 dark:text-white"><%= recipe.title %></h4>
+          <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300"><%= recipe.description %></p>
+        </div>
 
-    <div class="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 text-sm font-medium px-2.5 py-0.5 rounded-full">
-      <%= "#{plan_recipe.recipe.seasonal_score}% de saison" %>
-    </div>
-  </div>
-
-  <div class="mt-2">
-    <p class="text-gray-600 dark:text-gray-400 mb-2"><%= plan_recipe.recipe.description %></p>
-
-    <div class="mt-3">
-      <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ingrédients :</h5>
-      <div class="text-sm text-gray-600 dark:text-gray-400">
-        <%= simple_format(plan_recipe.recipe.ingredients) %>
-      </div>
-    </div>
-
-    <div class="mt-3">
-      <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ingrédients de saison utilisés :</h5>
-      <div class="text-sm text-gray-600 dark:text-gray-400">
-        <% if plan_recipe.recipe.seasonal_ingredients_used.any? %>
-          <% plan_recipe.recipe.seasonal_ingredients_used.each_with_index do |ingredient, index| %>
-            <%= ingredient %><% if index < plan_recipe.recipe.seasonal_ingredients_used.size - 1 %>, <% else %>.<% end %>
-          <% end %>
-        <% else %>
-          Aucun ingrédient de saison utilisé.
+        <% if recipe.seasonal_score.positive? %>
+          <div class="shrink-0 rounded-full bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-200">
+            <%= "#{recipe.seasonal_score}% de saison" %>
+          </div>
         <% end %>
       </div>
-    </div>
 
-    <div class="mt-4 grid grid-cols-3 gap-2 text-sm">
-      <div>
-        <span class="text-gray-500 dark:text-gray-400">Préparation :</span>
-        <span class="font-medium"><%= plan_recipe.recipe.preparation_time %> min</span>
-      </div>
-      <div>
-        <span class="text-gray-500 dark:text-gray-400">Cuisson :</span>
-        <span class="font-medium"><%= plan_recipe.recipe.cooking_time %> min</span>
-      </div>
-      <div>
-        <span class="text-gray-500 dark:text-gray-400">Difficulté :</span>
-        <span class="font-medium"><%= plan_recipe.recipe.difficulty %></span>
-      </div>
-    </div>
+      <% if plan_recipe.replacement_failed? %>
+        <div class="mt-4 rounded-2xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200" role="alert">
+          Le remplacement a échoué. La recette actuelle a été conservée et vous pouvez réessayer.
+        </div>
+      <% end %>
 
-    <div class="mt-3">
-      <%= link_to "Voir la recette complète", recipe_path(plan_recipe.recipe), class: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 text-sm font-medium" %>
+      <div class="mt-4">
+        <details class="group rounded-2xl border border-slate-200 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-950/40">
+          <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between rounded-xl text-sm font-bold text-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--omq-tomato)] dark:text-slate-100">
+            Ingrédients
+            <svg class="h-5 w-5 text-slate-400 transition group-open:rotate-180" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <div class="mt-3">
+            <%= render "recipes/ingredients_breakdown", recipe: recipe %>
+          </div>
+        </details>
+
+        <div class="mt-3 text-sm text-slate-600 dark:text-slate-300">
+          <span class="font-bold text-slate-800 dark:text-slate-100">Saison :</span>
+          <% if recipe.seasonal_ingredients_used.any? %>
+            <%= recipe.seasonal_ingredients_used.to_sentence %>.
+          <% else %>
+            Aucun ingrédient de saison utilisé.
+          <% end %>
+        </div>
+
+        <div class="mt-4 grid grid-cols-2 gap-2 text-sm lg:grid-cols-4">
+          <div class="rounded-2xl bg-white/70 p-3 dark:bg-slate-900/70">
+            <span class="block text-xs font-semibold text-slate-500 dark:text-slate-400">Prépa</span>
+            <span class="font-black"><%= recipe.preparation_time %> min</span>
+          </div>
+          <div class="rounded-2xl bg-white/70 p-3 dark:bg-slate-900/70">
+            <span class="block text-xs font-semibold text-slate-500 dark:text-slate-400">Cuisson</span>
+            <span class="font-black"><%= recipe.cooking_time %> min</span>
+          </div>
+          <div class="rounded-2xl bg-white/70 p-3 dark:bg-slate-900/70">
+            <span class="block text-xs font-semibold text-slate-500 dark:text-slate-400">Niveau</span>
+            <span class="font-black"><%= recipe.difficulty %></span>
+          </div>
+          <div class="rounded-2xl bg-amber-50 p-3 dark:bg-amber-950/30">
+            <span class="block text-xs font-semibold text-amber-800 dark:text-amber-200">Coût indicatif</span>
+            <span class="font-black text-slate-950 dark:text-white"><%= estimated_cost_cents ? format_estimated_price(estimated_cost_cents) : "Non estimé" %></span>
+          </div>
+        </div>
+
+        <div class="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+          <%= link_to "Voir la recette", recipe_path(recipe), class: "btn-primary col-span-2 w-full sm:w-auto" %>
+          <%= button_to(plan_recipe.locked? ? "Déverrouiller" : "Verrouiller",
+              toggle_lock_plan_plan_recipe_path(plan_recipe.plan, plan_recipe),
+              method: :patch,
+              class: "btn-secondary w-full",
+              form: { class: "w-full sm:w-auto" },
+              data: { turbo_submits_with: "Mise à jour…" }) %>
+          <%= button_to "Remplacer",
+              replace_plan_plan_recipe_path(plan_recipe.plan, plan_recipe),
+              method: :post,
+              class: "btn-secondary w-full",
+              form: { class: "w-full sm:w-auto" },
+              disabled: plan_recipe.locked?,
+              title: plan_recipe.locked? ? "Déverrouillez ce repas pour le remplacer" : nil,
+              data: { turbo_submits_with: "Remplacement…" } %>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+  <% end %>
+</article>

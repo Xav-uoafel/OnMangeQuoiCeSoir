@@ -1,18 +1,14 @@
 require "test_helper"
 
 class ReviewsControllerTest < ActionDispatch::IntegrationTest
-  include Devise::Test::IntegrationHelpers
-
   def setup
     @user = users(:one)
     @other_user = users(:two)
     @recipe = recipes(:one)
-    @review = reviews(:one)  # Cette review appartient à @other_user
-    sign_in @other_user  # On connecte l'utilisateur qui possède la review
+    @review = reviews(:one)
   end
 
   test "devrait créer une review" do
-    # Créer une nouvelle recette sans review pour le test
     recipe = Recipe.create!(
       title: "Nouvelle Recette",
       description: "Description pour test de review",
@@ -26,6 +22,7 @@ class ReviewsControllerTest < ActionDispatch::IntegrationTest
       generated_at: Time.current
     )
 
+    sign_in @other_user
     assert_difference('Review.count') do
       post recipe_reviews_path(recipe), params: {
         review: {
@@ -40,6 +37,7 @@ class ReviewsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "ne devrait pas créer une review invalide" do
+    sign_in @other_user
     assert_no_difference('Review.count') do
       post recipe_reviews_path(@recipe), params: {
         review: {
@@ -53,8 +51,6 @@ class ReviewsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "ne devrait pas créer une review sans être connecté" do
-    sign_out @other_user
-
     assert_no_difference('Review.count') do
       post recipe_reviews_path(@recipe), params: {
         review: {
@@ -68,7 +64,7 @@ class ReviewsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "ne devrait pas créer une review sur sa propre recette" do
-    sign_in @user  # On connecte le propriétaire de la recette
+    sign_in @user
 
     assert_no_difference('Review.count') do
       post recipe_reviews_path(@recipe), params: {
@@ -83,10 +79,8 @@ class ReviewsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "devrait mettre à jour une review" do
-    assert_equal @other_user, @review.user, "La review devrait appartenir à @other_user"
-    
     sign_in @review.user
-    
+
     patch recipe_review_path(@recipe, @review), params: {
       review: {
         rating: 5,
@@ -103,7 +97,7 @@ class ReviewsControllerTest < ActionDispatch::IntegrationTest
 
   test "ne devrait pas mettre à jour la review d'un autre utilisateur" do
     review = reviews(:one)
-    sign_in @user # Connecter un utilisateur différent du propriétaire
+    sign_in @user
     original_rating = review.rating
 
     patch recipe_review_path(@recipe, review), params: {
@@ -127,12 +121,12 @@ class ReviewsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to recipe_path(@recipe)
-    assert_equal "Commentaire supprimé avec succès", flash[:notice]
+    assert_equal I18n.t('flash.review_deleted'), flash[:notice]
   end
 
   test "ne devrait pas supprimer la review d'un autre utilisateur" do
     review = reviews(:one)
-    sign_in @user # Connecter un utilisateur différent du propriétaire
+    sign_in @user
 
     assert_no_difference('Review.count') do
       delete recipe_review_path(@recipe, review)

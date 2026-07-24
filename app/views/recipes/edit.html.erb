@@ -1,3 +1,9 @@
-<h1>Modifier la Recette</h1>
-<%= render "form" %>    
-<%= link_to "Retour", recipes_path %>
+<div class="mx-auto max-w-4xl space-y-6">
+  <div class="app-card p-5 sm:p-8">
+    <p class="page-kicker">Carnet personnel</p>
+    <h1 class="page-title mt-2">Modifier la recette</h1>
+    <p class="page-subtitle"><%= @recipe.title %></p>
+  </div>
+
+  <%= render "form" %>
+</div>

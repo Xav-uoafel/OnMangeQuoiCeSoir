@@ -1,57 +1,88 @@
-<%= form_with(model: @recipe, local: true) do |form| %>
-    <% if @recipe.errors.any? %>
-      <div id="error_explanation">
-        <h2><%= pluralize(@recipe.errors.count, "erreur") %> empêchent cette recette d'être sauvegardée :</h2>
-        <ul>
-          <% @recipe.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
-  
-    <div class="field">
-      <%= form.label :title, "Titre" %>
-      <%= form.text_field :title %>
-    </div>
-  
-    <div class="field">
-      <%= form.label :description, "Description" %>
-      <%= form.text_area :description %>
-    </div>
-  
-    <div class="field">
-      <%= form.label :ingredients, "Ingrédients" %>
-      <%= form.text_area :ingredients %>
-    </div>
-  
-    <div class="field">
-      <%= form.label :instructions, "Instructions" %>
-      <%= form.text_area :instructions %>
-    </div>
-  
-    <div class="field">
-      <%= form.label :servings, "Nombre de personnes" %>
-      <%= form.number_field :servings %>
-    </div>
-  
-    <div class="field">
-      <%= form.label :preparation_time, "Temps de préparation (minutes)" %>
-      <%= form.number_field :preparation_time %>
-    </div>
-  
-    <div class="field">
-      <%= form.label :cooking_time, "Temps de cuisson (minutes)" %>
-      <%= form.number_field :cooking_time %>
-    </div>
-  
-    <div class="field">
-      <%= form.label :difficulty, "Difficulté" %>
-      <%= form.text_field :difficulty %>
-    </div>
-  
-    <div class="actions">
-      <%= form.submit %>
+<%= form_with(model: @recipe, class: "space-y-6") do |form| %>
+  <% if @recipe.errors.any? %>
+    <div class="rounded-3xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900 dark:bg-red-950/40 dark:text-red-100" role="alert" aria-live="assertive">
+      <h2 class="font-black"><%= pluralize(@recipe.errors.count, "erreur") %> à corriger</h2>
+      <ul class="mt-2 list-disc space-y-1 pl-5 text-sm">
+        <% @recipe.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
     </div>
   <% end %>
-  
+
+  <div class="app-card p-5 sm:p-6">
+    <h2 class="text-xl font-black">L’essentiel</h2>
+    <div class="mt-5 space-y-5">
+      <div>
+        <%= form.label :title, "Titre de la recette", class: "form-label" %>
+        <%= form.text_field :title, required: true, minlength: 3, maxlength: 100,
+            autocomplete: "off", placeholder: "Ex. Curry de légumes express",
+            class: "form-input mt-2" %>
+      </div>
+
+      <div>
+        <%= form.label :description, "Description", class: "form-label" %>
+        <%= form.text_area :description, required: true, minlength: 10, maxlength: 1000,
+            rows: 4, placeholder: "Décrivez le plat, ses saveurs et ce qui le rend pratique.",
+            aria: { describedby: "recipe-description-help" },
+            class: "form-input mt-2" %>
+        <p id="recipe-description-help" class="form-help">Entre 10 et 1 000 caractères.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-card p-5 sm:p-6">
+    <h2 class="text-xl font-black">Préparation</h2>
+    <div class="mt-5 grid gap-5 lg:grid-cols-2">
+      <div>
+        <%= form.label :ingredients, "Ingrédients", class: "form-label" %>
+        <%= form.text_area :ingredients, required: true, rows: 10,
+            placeholder: "Un ingrédient par ligne, avec sa quantité",
+            aria: { describedby: "recipe-ingredients-help" },
+            class: "form-input mt-2 font-mono text-sm" %>
+        <p id="recipe-ingredients-help" class="form-help">Ex. 2 tomates ou 250 g de riz.</p>
+      </div>
+
+      <div>
+        <%= form.label :instructions, "Instructions", class: "form-label" %>
+        <%= form.text_area :instructions, required: true, rows: 10,
+            placeholder: "Une étape claire par paragraphe",
+            class: "form-input mt-2" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-card p-5 sm:p-6">
+    <h2 class="text-xl font-black">Informations pratiques</h2>
+    <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div>
+        <%= form.label :servings, "Nombre de personnes", class: "form-label" %>
+        <%= form.number_field :servings, required: true, min: 1, max: 50, inputmode: "numeric", class: "form-input mt-2" %>
+      </div>
+
+      <div>
+        <%= form.label :difficulty, "Difficulté", class: "form-label" %>
+        <%= form.select :difficulty, options_for_select(%w[Facile Intermédiaire Difficile], @recipe.difficulty), { include_blank: "Choisir" }, required: true, class: "form-input mt-2" %>
+      </div>
+
+      <div>
+        <%= form.label :preparation_time, "Préparation (minutes)", class: "form-label" %>
+        <%= form.number_field :preparation_time, required: true, min: 1, max: 1440, inputmode: "numeric", class: "form-input mt-2" %>
+      </div>
+
+      <div>
+        <%= form.label :cooking_time, "Cuisson (minutes)", class: "form-label" %>
+        <%= form.number_field :cooking_time, required: true, min: 1, max: 1440, inputmode: "numeric", class: "form-input mt-2" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="mobile-sticky-actions" aria-label="Actions de la recette">
+    <div class="mx-auto grid max-w-4xl grid-cols-[auto_1fr] gap-3 sm:flex sm:justify-end">
+      <%= link_to "Annuler", @recipe.persisted? ? recipe_path(@recipe) : recipes_path, class: "btn-secondary" %>
+      <%= form.submit @recipe.persisted? ? "Enregistrer" : "Créer la recette",
+          class: "btn-primary w-full cursor-pointer sm:w-auto",
+          data: { turbo_submits_with: "Enregistrement…" } %>
+    </div>
+  </div>
+<% end %>

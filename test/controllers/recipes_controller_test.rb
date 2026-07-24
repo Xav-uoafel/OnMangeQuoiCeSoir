@@ -1,20 +1,17 @@
 require "test_helper"
 
 class RecipesControllerTest < ActionDispatch::IntegrationTest
-  include Devise::Test::IntegrationHelpers
-
   def setup
     @user = users(:one)
     @other_user = users(:two)
     @recipe = recipes(:one)
-    sign_in @user
   end
 
   test "devrait afficher l'index" do
     get recipes_path
     assert_response :success
-    assert_select 'h1', 'Liste des Recettes'
-    assert_select '.recipe', minimum: 2  # Changé de recipe-card à recipe
+    assert_select 'h1', 'Toutes les recettes'
+    assert_select '.recipe', minimum: 2
   end
 
   test "devrait afficher une recette" do
@@ -28,6 +25,7 @@ class RecipesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "devrait afficher le formulaire de nouvelle recette" do
+    sign_in @user
     get new_recipe_path
     assert_response :success
     assert_select 'form[action=?]', recipes_path
@@ -36,6 +34,7 @@ class RecipesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "devrait créer une recette" do
+    sign_in @user
     assert_difference('Recipe.count') do
       post recipes_path, params: {
         recipe: {
@@ -57,10 +56,11 @@ class RecipesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "ne devrait pas créer une recette invalide" do
+    sign_in @user
     assert_no_difference('Recipe.count') do
       post recipes_path, params: {
         recipe: {
-          title: "",  # titre vide invalide
+          title: "",
           description: "Description test"
         }
       }
@@ -71,6 +71,7 @@ class RecipesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "devrait afficher le formulaire d'édition" do
+    sign_in @user
     get edit_recipe_path(@recipe)
     assert_response :success
     assert_select 'form[action=?]', recipe_path(@recipe)
@@ -78,6 +79,7 @@ class RecipesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "devrait mettre à jour une recette" do
+    sign_in @user
     patch recipe_path(@recipe), params: {
       recipe: {
         title: "Titre Modifié",
@@ -103,6 +105,7 @@ class RecipesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "devrait supprimer une recette" do
+    sign_in @user
     assert_difference('Recipe.count', -1) do
       delete recipe_path(@recipe)
     end
@@ -129,12 +132,12 @@ class RecipesControllerTest < ActionDispatch::IntegrationTest
   test "devrait filtrer les recettes par difficulté" do
     get recipes_path, params: { difficulty: "Facile" }
     assert_response :success
-    assert_select '.recipe', text: /#{@recipe.title}/  # Changé de recipe-card
+    assert_select '.recipe', text: /#{@recipe.title}/
   end
 
   test "devrait rechercher des recettes par titre" do
     get recipes_path, params: { search: "Tarte" }
     assert_response :success
-    assert_select '.recipe', text: /Tarte/  # Changé de recipe-card
+    assert_select '.recipe', text: /Tarte/
   end
 end

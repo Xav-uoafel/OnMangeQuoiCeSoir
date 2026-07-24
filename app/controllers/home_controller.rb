@@ -1,5 +1,9 @@
 class HomeController < ApplicationController
   def index
-    @recipes = Recipe.order(created_at: :desc).limit(6)
+    @recipes = Recipe.includes(:reviews).order(created_at: :desc).limit(6)
   end
-end 
+
+  def offline
+    render layout: false
+  end
+end

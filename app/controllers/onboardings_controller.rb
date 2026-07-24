@@ -7,9 +7,9 @@ class OnboardingsController < ApplicationController
 
   def update
     if current_user.update(onboarding_params.merge(onboarding_completed: true))
-      redirect_to authenticated_root_path, notice: 'Bienvenue ! Votre profil est configure.'
+      redirect_to authenticated_root_path, notice: 'Bienvenue ! Votre profil est configuré.'
     else
-      render :show, status: :unprocessable_entity
+      render :show, status: :unprocessable_content
     end
   end
 

@@ -93,16 +93,26 @@ class RecipeTest < ActiveSupport::TestCase
     assert_not_nil recipe.generated_at, "generated_at devrait être défini automatiquement"
   end
 
+  test "structured_ingredients utilise les ingredients structures quand disponibles" do
+    @recipe.recipe_ingredients = [
+      { name: "riz", quantity: "200", unit: "g", category: "epicerie", raw: "200g de riz" }
+    ]
+    @recipe.valid?
+
+    assert_equal "riz", @recipe.structured_ingredients.first["name"]
+    assert_equal 200.0, @recipe.structured_ingredients.first["quantity"]
+  end
+
+  test "structured_ingredients retombe sur le parsing du texte" do
+    @recipe.recipe_ingredients = []
+    @recipe.ingredients = "200 g riz"
+
+    assert_equal "riz", @recipe.structured_ingredients.first[:name]
+  end
+
   test "calcul de la note moyenne" do
     recipe = recipes(:one)
-    
-    Review.create!(
-      rating: 4,
-      comment: "Premier commentaire de test qui fait plus de 10 caractères",
-      recipe: recipe,
-      user: users(:two)
-    )
-    
+
     Review.create!(
       rating: 2,
       comment: "Deuxième commentaire de test qui fait plus de 10 caractères",

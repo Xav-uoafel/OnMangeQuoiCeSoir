@@ -1,30 +1,22 @@
-<div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow dark:shadow-gray-900/50 mb-4">
-  <div class="flex justify-between items-start">
-    <div>
-      <div class="flex items-center gap-2 mb-2">
+<article class="app-card p-5 sm:p-6" id="<%= dom_id(review) %>">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div class="min-w-0">
+      <p class="break-all text-sm font-black text-slate-900 dark:text-slate-100"><%= review.user.email %></p>
+      <div class="mt-2 flex flex-wrap items-center gap-3">
         <%= rating_stars(review.rating) %>
-        <span class="text-sm text-gray-500 dark:text-gray-400">
-          par <%= review.user.email %> le <%= l(review.created_at, format: :long) %>
-        </span>
+        <time class="text-xs font-bold text-slate-500 dark:text-slate-400" datetime="<%= review.created_at.iso8601 %>"><%= l(review.created_at, format: :long) %></time>
       </div>
-      <p class="text-gray-700 dark:text-gray-300"><%= review.comment %></p>
     </div>
 
     <% if review.user == current_user %>
-      <div class="flex gap-2">
-        <%= button_to "Modifier",
-            edit_recipe_review_path(review.recipe, review),
-            method: :get,
-            class: "text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2",
-            form_class: "inline-block" %>
-
-        <%= button_to "Supprimer",
-            recipe_review_path(review.recipe, review),
-            method: :delete,
-            class: "text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2",
-            form_class: "inline-block",
-            data: { turbo_confirm: "Êtes-vous sûr de vouloir supprimer cet avis ?" } %>
+      <div class="flex shrink-0 gap-2">
+        <%= link_to "Modifier", edit_recipe_review_path(review.recipe, review), class: "btn-secondary btn-compact" %>
+        <%= button_to "Supprimer", recipe_review_path(review.recipe, review), method: :delete,
+            class: "btn-danger btn-compact",
+            data: { turbo_confirm: "Supprimer définitivement cet avis ?" } %>
       </div>
     <% end %>
   </div>
-</div>
+
+  <p class="mt-4 whitespace-pre-line text-sm leading-6 text-slate-700 dark:text-slate-300"><%= review.comment %></p>
+</article>

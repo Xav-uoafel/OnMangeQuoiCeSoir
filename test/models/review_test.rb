@@ -4,8 +4,7 @@ class ReviewTest < ActiveSupport::TestCase
   def setup
     @user = users(:one)
     @other_user = users(:two)
-    
-    # Créer une nouvelle recette pour les tests
+
     @recipe = Recipe.create!(
       title: "Recette Test",
       description: "Description test pour les reviews",
@@ -18,7 +17,7 @@ class ReviewTest < ActiveSupport::TestCase
       user: @user,
       generated_at: Time.current
     )
-    
+
     @review = Review.new(
       rating: 4,
       comment: "Un très bon commentaire de test qui fait plus de 10 caractères",
@@ -48,7 +47,6 @@ class ReviewTest < ActiveSupport::TestCase
   end
 
   test "utilisateur ne peut pas commenter deux fois la même recette" do
-    # Créons d'abord une nouvelle recette pour ce test
     recipe = Recipe.create!(
       title: "Recette Test Unique",
       description: "Description test pour review unique",
@@ -62,15 +60,13 @@ class ReviewTest < ActiveSupport::TestCase
       generated_at: Time.current
     )
 
-    # Première review - devrait réussir
-    first_review = Review.create!(
+    Review.create!(
       rating: 4,
       comment: "Premier commentaire de test qui fait plus de 10 caractères",
       recipe: recipe,
       user: @other_user
     )
 
-    # Deuxième review - devrait échouer
     duplicate_review = Review.new(
       rating: 5,
       comment: "Deuxième commentaire de test qui fait plus de 10 caractères",
@@ -105,7 +101,6 @@ class ReviewTest < ActiveSupport::TestCase
   end
 
   def teardown
-    # Nettoyer les recettes créées pendant les tests
     Recipe.where(title: "Recette Test").destroy_all
   end
 end

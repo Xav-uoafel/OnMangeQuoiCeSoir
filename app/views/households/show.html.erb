@@ -1,36 +1,44 @@
-<div class="max-w-2xl mx-auto py-8 px-4">
-  <h1 class="text-3xl font-bold mb-6">Mon foyer</h1>
-
-  <div class="bg-white dark:bg-gray-800 shadow dark:shadow-gray-900/50 rounded-lg p-6 mb-6">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-semibold"><%= @household.name %></h2>
-      <% if current_user.household_admin? %>
-        <%= link_to "Modifier", edit_household_path,
-            class: "text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800" %>
-      <% end %>
-    </div>
-
-    <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4 mb-6">
-      <p class="text-sm text-indigo-700 dark:text-indigo-400 font-medium">Code d'invitation</p>
-      <p class="text-2xl font-mono font-bold text-indigo-900 mt-1"><%=  @household.invite_code %></p>
-      <p class="text-xs text-indigo-600 dark:text-indigo-400 mt-1">Partagez ce code pour inviter des membres a votre foyer.</p>
-    </div>
-
-    <h3 class="font-semibold text-gray-700 dark:text-gray-300 mb-3">Membres (<%= @members.size %>)</h3>
-    <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-      <% @members.each do |member| %>
-        <li class="py-3 flex justify-between items-center">
-          <div>
-            <span class="font-medium"><%= member.email %></span>
-            <% if member.household_admin? %>
-              <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">Admin</span>
-            <% end %>
-          </div>
-        </li>
-      <% end %>
-    </ul>
+<div class="mx-auto max-w-2xl space-y-6">
+  <div class="app-card p-5 sm:p-8">
+    <p class="page-kicker">Foyer</p>
+    <h1 class="page-title mt-2">Mon foyer</h1>
+    <p class="page-subtitle">Partagez le même stock et les mêmes plans avec les personnes de votre foyer.</p>
   </div>
 
-  <%= link_to "Retour", authenticated_root_path,
-      class: "inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700" %>
+  <div class="app-card p-5 sm:p-6">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <h2 class="text-2xl font-black"><%= @household.name %></h2>
+      <% if current_user.household_admin? %>
+        <%= link_to "Modifier le foyer", edit_household_path, class: "btn-secondary btn-compact" %>
+      <% end %>
+    </div>
+
+    <div class="mt-5 rounded-3xl border border-emerald-200 bg-emerald-50/80 p-4 dark:border-emerald-900 dark:bg-emerald-950/30" data-controller="clipboard">
+      <p class="text-sm font-black text-emerald-800 dark:text-emerald-200">Code d’invitation</p>
+      <div class="mt-2 flex flex-col gap-3 min-[360px]:flex-row min-[360px]:items-center min-[360px]:justify-between">
+        <code class="text-2xl font-black tracking-widest text-slate-950 dark:text-white" data-clipboard-target="source"><%= @household.invite_code %></code>
+        <button type="button" class="btn-secondary btn-compact" data-action="clipboard#copy">Copier</button>
+      </div>
+      <p class="mt-3 text-xs font-bold text-emerald-800 dark:text-emerald-200" data-clipboard-target="feedback" aria-live="polite">Partagez ce code avec les personnes à inviter.</p>
+    </div>
+
+    <section class="mt-6" aria-labelledby="household-members-title">
+      <div class="flex items-center justify-between gap-3">
+        <h3 id="household-members-title" class="text-lg font-black">Membres</h3>
+        <span class="pill"><%= @members.size %></span>
+      </div>
+      <ul class="mt-3 divide-y divide-slate-100 dark:divide-slate-800">
+        <% @members.each do |member| %>
+          <li class="flex min-h-14 items-center justify-between gap-3 py-3">
+            <span class="min-w-0 break-all text-sm font-bold"><%= member.email %></span>
+            <% if member.household_admin? %>
+              <span class="pill shrink-0">Admin</span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  </div>
+
+  <%= link_to "Retour", authenticated_root_path, class: "btn-secondary w-full sm:w-auto" %>
 </div>

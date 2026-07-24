@@ -1,5 +1,8 @@
 name: CI
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [master]
@@ -46,8 +49,11 @@ jobs:
       - name: Setup database
         run: bin/rails db:schema:load
 
-      - name: Run tests
+      - name: Run application tests
         run: bin/rails test
+
+      - name: Run browser tests
+        run: bin/rails test:system
 
   lint:
     runs-on: ubuntu-latest
@@ -63,3 +69,30 @@ jobs:
 
       - name: Run RuboCop
         run: bundle exec rubocop
+
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.2'
+          bundler-cache: true
+
+      - name: Scan application code
+        run: bundle exec brakeman --no-pager
+
+      - name: Scan gem vulnerabilities
+        run: bundle exec bundle-audit check --update
+
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build production image
+        run: docker build --tag onmangequoi:test .

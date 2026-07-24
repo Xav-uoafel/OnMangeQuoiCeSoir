@@ -1,29 +1,36 @@
 <%= turbo_stream_from "plan_#{@plan.id}" %>
 
-<div class="max-w-7xl mx-auto py-8 px-4">
-  <div class="mb-8">
-    <div class="flex justify-between items-start">
+<div class="space-y-6">
+  <div class="app-card overflow-hidden">
+    <div class="relative p-5 sm:p-8">
+      <div class="absolute right-0 top-0 h-32 w-32 rounded-bl-[4rem] bg-emerald-200/50 blur-2xl dark:bg-emerald-500/20"></div>
+      <div class="relative flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
       <div>
-        <h1 class="text-3xl font-bold mb-2">Plan de repas</h1>
-        <p class="text-gray-600 dark:text-gray-400">
+        <p class="page-kicker">Semaine prête à cuisiner</p>
+        <h1 class="page-title mt-2">Plan de repas</h1>
+        <p class="page-subtitle">
           Du <%= l @plan.start_date, format: :long %> au <%= l @plan.end_date, format: :long %>
         </p>
       </div>
 
-      <div class="flex gap-4">
+      <div class="hidden gap-3 sm:flex">
         <% if @plan.generated? %>
+          <%= link_to "Liste de courses",
+              plan_shopping_list_path(@plan),
+              class: "btn-primary" %>
+
           <%= button_to "Régénérer",
               generate_plan_path(@plan),
               method: :post,
-              class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700",
-              data: { turbo_confirm: "Régénérer supprimera les recettes actuelles. Continuer ?" } %>
+              class: "btn-secondary",
+              data: { turbo_confirm: "Les repas verrouillés seront conservés. Régénérer les autres recettes ?" } %>
         <% end %>
 
         <%= button_to plan_path(@plan),
             method: :delete,
-            class: "inline-flex items-center px-4 py-2 border border-red-300 dark:border-red-700 text-sm font-medium rounded-md text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20",
+            class: "btn-danger",
             data: { turbo_confirm: "Êtes-vous sûr de vouloir supprimer ce plan de repas ?" } do %>
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
           </svg>
           Supprimer le plan
@@ -31,22 +38,84 @@
       </div>
     </div>
 
-    <div class="mt-4 bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-      <h2 class="text-lg font-semibold mb-2">Contraintes</h2>
-      <ul class="space-y-2">
-        <li>Nombre de personnes : <%= @plan.constraints["servings"] %></li>
-        <li>Temps de préparation maximum : <%= @plan.constraints["max_preparation_time"] %> minutes</li>
+    <div class="relative mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="app-card-muted p-4">
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Personnes</p>
+        <p class="mt-1 text-2xl font-black"><%= @plan.constraints["servings"] %></p>
+      </div>
+      <div class="app-card-muted p-4">
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Préparation max</p>
+        <p class="mt-1 text-2xl font-black"><%= @plan.constraints["max_preparation_time"] %> min</p>
+      </div>
+      <div class="app-card-muted p-4 sm:col-span-2">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Budget semaine</p>
+            <p class="mt-1 text-2xl font-black"><%= @plan.weekly_budget? ? format_estimated_price(@plan.weekly_budget_cents) : "À définir" %></p>
+            <% if @plan.target_cost_per_meal_cents %>
+              <p class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400"><%= format_estimated_price(@plan.target_cost_per_meal_cents) %> ciblés par repas</p>
+            <% end %>
+          </div>
+
+          <% if @plan.budget_difference_cents %>
+            <span class="rounded-full px-3 py-1 text-xs font-black <%= @plan.over_budget? ? 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-200' %>">
+              <%= @plan.over_budget? ? "#{format_estimated_price(@plan.budget_difference_cents.abs)} dépassés" : "#{format_estimated_price(@plan.budget_difference_cents)} de marge" %>
+            </span>
+          <% end %>
+        </div>
+
+        <%= form_with url: plan_path(@plan), method: :patch, scope: :plan, class: "mt-3 flex gap-2" do |f| %>
+          <div class="relative min-w-0 flex-1">
+            <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-black text-slate-500 dark:text-slate-400" aria-hidden="true">€</span>
+            <%= f.number_field :weekly_budget,
+                value: @plan.weekly_budget,
+                min: 0.01,
+                max: 10_000,
+                step: 0.01,
+                inputmode: "decimal",
+                class: "form-input min-h-11 py-2 pl-8",
+                aria: { label: "Budget hebdomadaire en euros" },
+                placeholder: "80" %>
+          </div>
+          <%= f.submit "Appliquer", class: "btn-secondary btn-compact cursor-pointer", data: { turbo_submits_with: "Mise à jour…" } %>
+        <% end %>
+        <% if @plan.errors[:constraints].any? %>
+          <p class="form-error" role="alert"><%= @plan.errors[:constraints].to_sentence %></p>
+        <% end %>
+      </div>
+
+      <div class="app-card-muted p-4 sm:col-span-2 lg:col-span-4">
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Contraintes</p>
+        <div class="mt-2 flex flex-wrap gap-2">
         <% if @plan.constraints["dietary_restrictions"].present? %>
-          <li>Restrictions alimentaires : <%= @plan.constraints["dietary_restrictions"].join(", ") %></li>
+            <% @plan.constraints["dietary_restrictions"].each do |restriction| %>
+              <span class="pill"><%= restriction.humanize %></span>
+            <% end %>
         <% end %>
         <% if @plan.constraints["excluded_ingredients"].present? %>
-          <li>Ingrédients exclus : <%= @plan.constraints["excluded_ingredients"] %></li>
+            <% Array(@plan.constraints["excluded_ingredients"]).each do |ingredient| %>
+              <span class="pill"><%= ingredient %></span>
+            <% end %>
         <% end %>
-      </ul>
+          <% if @plan.constraints["dietary_restrictions"].blank? && @plan.constraints["excluded_ingredients"].blank? %>
+            <span class="text-sm text-slate-500 dark:text-slate-400">Aucune contrainte spécifique</span>
+          <% end %>
+        </div>
+      </div>
+    </div>
     </div>
   </div>
 
-  <div id="plan_status" class="mt-8">
+  <div id="plan_status" aria-live="<%= @plan.generating? ? 'polite' : 'off' %>" aria-busy="<%= @plan.generating? %>">
     <%= render 'status', plan: @plan %>
   </div>
+
+  <% if @plan.generated? %>
+    <div class="mobile-sticky-actions">
+      <div class="grid grid-cols-2 gap-3">
+        <%= link_to "Liste de courses", plan_shopping_list_path(@plan), class: "btn-primary w-full" %>
+        <%= button_to "Régénérer", generate_plan_path(@plan), method: :post, class: "btn-secondary w-full", data: { turbo_confirm: "Les repas verrouillés seront conservés. Régénérer les autres recettes ?" } %>
+      </div>
+    </div>
+  <% end %>
 </div>

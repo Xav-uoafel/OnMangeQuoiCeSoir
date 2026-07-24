@@ -1,6 +1,8 @@
 class Review < ApplicationRecord
     belongs_to :recipe
     belongs_to :user
+
+    validate :cannot_review_own_recipe
     # Ajoute éventuellement des validations, par exemple :
     validates :rating, presence: true, 
               numericality: { 
@@ -23,5 +25,13 @@ class Review < ApplicationRecord
     def self.average_rating
       average(:rating).to_f.round(1)
     end
+
+    private
+
+    def cannot_review_own_recipe
+      return if recipe.blank? || user.blank?
+      return unless recipe.user_id == user_id
+
+      errors.add(:base, I18n.t("reviews.errors.own_recipe"))
+    end
 end
-  
