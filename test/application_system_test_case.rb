@@ -7,7 +7,10 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
 
   COLOR_CONTRAST_SCRIPT = Rails.root.join("test/support/color_contrast.js").read.freeze
 
-  driven_by :selenium, using: :headless_chrome, screen_size: [1400, 1000]
+  driven_by :selenium, using: :headless_chrome, screen_size: [1400, 1000] do |options|
+    options.add_preference("credentials_enable_service", false)
+    options.add_preference("profile.password_manager_enabled", false)
+  end
 
   setup do
     Warden.test_mode!
