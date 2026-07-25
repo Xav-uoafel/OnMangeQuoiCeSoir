@@ -105,6 +105,12 @@ Les opérations coûteuses sont limitées par utilisateur et par fenêtre horair
 
 Les contrôles CI couvrent les tests Rails et navigateur, RuboCop, Brakeman, Bundler Audit et la construction complète de l'image Docker.
 
+La procédure complète de staging est documentée dans [`docs/STAGING.md`](docs/STAGING.md). Après chaque déploiement, exécutez le contrôle extérieur :
+
+```bash
+STAGING_URL=https://staging.example.com bin/staging-smoke
+```
+
 ## Contribuer
 
 Les contributions sont les bienvenues ! Si vous souhaitez contribuer à ce projet, veuillez suivre ces étapes :

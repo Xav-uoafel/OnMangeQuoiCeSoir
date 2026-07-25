@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+require_relative "../lib/deployment_smoke_check"
+
+base_url = ENV["STAGING_URL"].to_s.strip
+base_url = ARGV.first.to_s.strip if base_url.empty?
+abort "Usage: STAGING_URL=https://staging.example.com bin/staging-smoke" if base_url.empty?
+
+results = DeploymentSmokeCheck.new(base_url: base_url).call
+
+results.each do |result|
+  marker = result.success? ? "OK" : "ECHEC"
+  puts "[#{marker}] #{result.name} : #{result.message}"
+end
+
+exit(results.all?(&:success?) ? 0 : 1)
