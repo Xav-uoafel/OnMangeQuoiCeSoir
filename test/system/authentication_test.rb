@@ -19,7 +19,7 @@ class AuthenticationTest < ApplicationSystemTestCase
     assert_mobile_registration_layout
     register_mobile_user
 
-    assert_current_path onboarding_path
+    assert_current_path onboarding_path, wait: 5
     assert_selector "h1", text: "Bienvenue sur OnMangeQuoi"
 
     complete_onboarding
@@ -47,6 +47,11 @@ class AuthenticationTest < ApplicationSystemTestCase
     fill_in "Adresse email", with: "mobile@example.com"
     fill_in "Mot de passe", with: "password123"
     fill_in "Confirmer le mot de passe", with: "password123"
+    find("#user_password_confirmation").send_keys(:tab)
+
+    assert_field "user_email", with: "mobile@example.com"
+    assert_field "user_password", with: "password123"
+    assert_field "user_password_confirmation", with: "password123"
     click_button "Créer mon compte"
   end
 
