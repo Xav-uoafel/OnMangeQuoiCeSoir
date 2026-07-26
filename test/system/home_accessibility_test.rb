@@ -16,5 +16,7 @@ class HomeAccessibilityTest < ApplicationSystemTestCase
     assert_color_contrast ".da-shell .da-chip"
     assert_color_contrast ".da-shell .page-kicker", background_selector: ".da-shell"
     assert_color_contrast ".da-ticket"
+    assert_color_contrast "#latest-recipes-title"
+    assert_color_contrast ".da-recipe-card .da-section-title", background_selector: ".da-recipe-card"
   end
 end
