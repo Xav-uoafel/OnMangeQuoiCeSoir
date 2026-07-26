@@ -60,6 +60,7 @@ fr:
       destroyed: "Au revoir ! Votre compte a bien été supprimé."
     passwords:
       send_instructions: "Vous allez recevoir un email avec les instructions pour réinitialiser votre mot de passe."
+      send_paranoid_instructions: "Si cette adresse existe, vous allez recevoir un email avec les instructions pour réinitialiser votre mot de passe."
       updated: "Votre mot de passe a été modifié avec succès."
     confirmations:
       send_instructions: "Vous allez recevoir un email avec les instructions pour confirmer votre compte."

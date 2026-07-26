@@ -32,14 +32,44 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Don't care if the mailer can't send.
-  config.action_mailer.raise_delivery_errors = false
-
   # Make template changes take effect immediately.
   config.action_mailer.perform_caching = false
 
-  # Set localhost to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "localhost", port: ENV.fetch("PORT", 3010) }
+  app_host = ENV.fetch("APP_HOST", "localhost")
+  app_protocol = ENV.fetch("APP_PROTOCOL", app_host == "localhost" ? "http" : "https")
+  app_port = ENV.fetch("APP_PORT", nil)
+  app_port = ENV.fetch("PORT", 3010) if app_port.blank? && app_host == "localhost"
+
+  config.action_mailer.default_url_options = {
+    host: app_host,
+    protocol: app_protocol,
+    port: app_port.presence&.to_i
+  }.compact
+
+  if ENV["SMTP_ADDRESS"].present?
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.raise_delivery_errors = true
+
+    smtp_settings = {
+      address: ENV.fetch("SMTP_ADDRESS"),
+      port: ENV.fetch("SMTP_PORT", 587).to_i,
+      domain: ENV.fetch("SMTP_DOMAIN", app_host),
+      enable_starttls_auto: ENV.fetch("SMTP_ENABLE_STARTTLS_AUTO", "true") == "true",
+      open_timeout: ENV.fetch("SMTP_OPEN_TIMEOUT", 5).to_i,
+      read_timeout: ENV.fetch("SMTP_READ_TIMEOUT", 5).to_i
+    }
+    if ENV["SMTP_USERNAME"].present?
+      smtp_settings.merge!(
+        user_name: ENV.fetch("SMTP_USERNAME"),
+        password: ENV.fetch("SMTP_PASSWORD"),
+        authentication: ENV.fetch("SMTP_AUTHENTICATION", "plain")
+      )
+    end
+    config.action_mailer.smtp_settings = smtp_settings
+  else
+    config.action_mailer.delivery_method = :letter_opener_web
+    config.action_mailer.raise_delivery_errors = true
+  end
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
