@@ -3,7 +3,7 @@ module Users
     protected
 
     def after_sending_reset_password_instructions_path_for(resource_name)
-      return "/dev/emails" if development_mailbox?
+      return "/dev/emails" if development_mailbox? && request.local?
 
       super
     end

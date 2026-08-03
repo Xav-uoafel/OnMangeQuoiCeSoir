@@ -1,6 +1,10 @@
 Rails.application.routes.draw do
   devise_for :users, controllers: { passwords: "users/passwords" }
-  mount LetterOpenerWeb::Engine, at: "/dev/emails" if Rails.env.development?
+  if Rails.env.development?
+    constraints ->(request) { request.local? } do
+      mount LetterOpenerWeb::Engine, at: "/dev/emails"
+    end
+  end
 
   get "up" => "rails/health#show", as: :rails_health_check
   get "health" => "health#show", as: :readiness_check
