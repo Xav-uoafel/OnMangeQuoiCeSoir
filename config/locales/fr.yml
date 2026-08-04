@@ -59,9 +59,11 @@ fr:
       updated: "Votre compte a été modifié avec succès."
       destroyed: "Au revoir ! Votre compte a bien été supprimé."
     passwords:
+      no_token: "Ce lien de réinitialisation est invalide ou incomplet. Demandez-en un nouveau."
       send_instructions: "Vous allez recevoir un email avec les instructions pour réinitialiser votre mot de passe."
       send_paranoid_instructions: "Si cette adresse existe, vous allez recevoir un email avec les instructions pour réinitialiser votre mot de passe."
       updated: "Votre mot de passe a été modifié avec succès."
+      updated_not_active: "Votre mot de passe a été modifié avec succès."
     confirmations:
       send_instructions: "Vous allez recevoir un email avec les instructions pour confirmer votre compte."
       confirmed: "Votre compte a été confirmé avec succès."
@@ -92,6 +94,8 @@ fr:
         start_date: "La date de début"
         end_date: "La date de fin"
         constraints: "Les préférences"
+      user:
+        reset_password_token: "Le lien de réinitialisation"
     errors:
       models:
         recipe:
@@ -129,6 +133,12 @@ fr:
         blank: "doit être rempli(e)"
         inclusion: "n'est pas inclus(e) dans la liste"
         record_invalid: "La validation a échoué : %{errors}"
+  errors:
+    messages:
+      expired: "a expiré. Demandez un nouveau lien de réinitialisation."
+      not_saved:
+        one: "Une erreur empêche l’enregistrement de %{resource} :"
+        other: "%{count} erreurs empêchent l’enregistrement de %{resource} :"
   time:
     formats:
       long: "%d %B %Y à %H:%M"
