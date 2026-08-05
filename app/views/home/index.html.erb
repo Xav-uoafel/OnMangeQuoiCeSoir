@@ -83,15 +83,15 @@
     </div>
   </section>
 
-  <section>
+  <section aria-labelledby="latest-recipes-title">
     <div class="mb-5 flex items-end justify-between gap-4">
       <div>
         <p class="page-kicker">Inspiration</p>
-        <h2 class="da-section-title mt-1 text-4xl font-black text-slate-950 sm:text-5xl">
+        <h2 id="latest-recipes-title" class="da-section-title mt-1 text-4xl font-black text-slate-950 dark:text-white sm:text-5xl">
           Dernières recettes
         </h2>
       </div>
-      <%= link_to "Tout voir", recipes_path, class: "hidden text-sm font-black text-emerald-800 hover:text-emerald-950 sm:inline" %>
+      <%= link_to "Tout voir", recipes_path, class: "hidden text-sm font-black text-emerald-800 hover:text-emerald-950 dark:text-emerald-300 dark:hover:text-emerald-200 sm:inline" %>
     </div>
 
     <% if @recipes.any? %>

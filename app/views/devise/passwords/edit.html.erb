@@ -1,36 +1,69 @@
+<% reset_token_error = resource.errors.details.fetch(:reset_password_token, []).find { |error| %i[expired invalid].include?(error[:error]) }&.fetch(:error) %>
+<% reset_token_invalid = reset_token_error.present? %>
+
 <div class="auth-page">
   <div class="auth-stack">
     <div class="app-card p-6 text-center sm:p-8">
-      <p class="page-kicker">Nouvel accès</p>
-      <h1 class="mt-2 text-3xl font-black tracking-tight text-slate-950 dark:text-white">Nouveau mot de passe</h1>
-      <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Choisissez un mot de passe robuste pour protéger vos menus.</p>
+      <p class="page-kicker"><%= reset_token_invalid ? "Sécurité du compte" : "Nouvel accès" %></p>
+      <h1 class="mt-2 text-3xl font-black tracking-tight text-slate-950 dark:text-white">
+        <% if reset_token_error == :expired %>
+          Ce lien a expiré
+        <% elsif reset_token_invalid %>
+          Ce lien n’est plus valide
+        <% else %>
+          Nouveau mot de passe
+        <% end %>
+      </h1>
+      <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+        <% if reset_token_error == :expired %>
+          Les liens de réinitialisation restent valables pendant 6 heures.
+        <% elsif reset_token_invalid %>
+          Ce lien a déjà été utilisé ou ne correspond plus à votre demande.
+        <% else %>
+          Choisissez un mot de passe robuste pour protéger vos menus.
+        <% end %>
+      </p>
     </div>
 
     <div class="app-card p-5 sm:p-8">
-      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: "space-y-5" }) do |f| %>
-        <%= render "devise/shared/error_messages", resource: resource %>
-        <%= f.hidden_field :reset_password_token %>
+      <% if reset_token_invalid %>
+        <div class="space-y-5 text-center" role="alert" aria-live="assertive">
+          <div>
+            <h2 class="text-xl font-black text-slate-950 dark:text-white">Demandez un nouveau lien</h2>
+            <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+              Pour protéger votre compte, ce lien ne peut plus être utilisé. Nous pouvons vous en envoyer un nouveau.
+            </p>
+          </div>
 
-        <div>
-          <%= f.label :password, "Nouveau mot de passe", class: "form-label" %>
-          <% if @minimum_password_length %>
-            <p id="password-minimum" class="form-help"><%= @minimum_password_length %> caractères minimum</p>
-          <% end %>
-          <%= f.password_field :password, autofocus: true, autocomplete: "new-password", required: true, placeholder: "Votre nouveau mot de passe",
-              aria: (@minimum_password_length ? { describedby: "password-minimum" } : {}),
-              class: "form-input mt-2" %>
+          <%= link_to "Recevoir un nouveau lien", new_password_path(resource_name), class: "btn-primary w-full" %>
+          <%= link_to "Retour à la connexion", new_session_path(resource_name), class: "btn-secondary w-full" %>
         </div>
+      <% else %>
+        <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: "space-y-5" }) do |f| %>
+          <%= render "devise/shared/error_messages", resource: resource %>
+          <%= f.hidden_field :reset_password_token %>
 
-        <div>
-          <%= f.label :password_confirmation, "Confirmer le mot de passe", class: "form-label" %>
-          <%= f.password_field :password_confirmation, autocomplete: "new-password", required: true, placeholder: "Confirmez votre mot de passe",
-              class: "form-input mt-2" %>
-        </div>
+          <div>
+            <%= f.label :password, "Nouveau mot de passe", class: "form-label" %>
+            <% if @minimum_password_length %>
+              <p id="password-minimum" class="form-help"><%= @minimum_password_length %> caractères minimum</p>
+            <% end %>
+            <%= f.password_field :password, autofocus: true, autocomplete: "new-password", required: true, placeholder: "Votre nouveau mot de passe",
+                aria: (@minimum_password_length ? { describedby: "password-minimum" } : {}),
+                class: "form-input mt-2" %>
+          </div>
 
-        <div>
-          <%= f.submit "Changer le mot de passe",
-              class: "btn-primary w-full cursor-pointer" %>
-        </div>
+          <div>
+            <%= f.label :password_confirmation, "Confirmer le mot de passe", class: "form-label" %>
+            <%= f.password_field :password_confirmation, autocomplete: "new-password", required: true, placeholder: "Confirmez votre mot de passe",
+                class: "form-input mt-2" %>
+          </div>
+
+          <div>
+            <%= f.submit "Changer le mot de passe",
+                class: "btn-primary w-full cursor-pointer" %>
+          </div>
+        <% end %>
       <% end %>
     </div>
   </div>

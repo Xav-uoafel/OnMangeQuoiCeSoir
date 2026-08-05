@@ -4,7 +4,7 @@ ruby "3.4.2"
 
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 8.0.0"
+gem "rails", "~> 8.0.0", ">= 8.0.5.1"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails", "~> 3.4.2"
@@ -55,6 +55,8 @@ group :development, :test do
 end
 
 group :development do
+  gem "letter_opener_web", "~> 3.0"
+
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 
